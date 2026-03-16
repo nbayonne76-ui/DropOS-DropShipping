@@ -3,7 +3,7 @@ from __future__ import annotations
 import uuid
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Response, status
 
 from app.auth.dependencies import CurrentUser
 from app.database import AsyncSession, get_db
@@ -61,8 +61,9 @@ async def update_store(
 )
 async def delete_store(
     store_id: uuid.UUID, current_user: CurrentUser, db: DbDep
-) -> None:
+) -> Response:
     await StoreService(db).delete_store(store_id, current_user.id)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.post(

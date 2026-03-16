@@ -34,7 +34,7 @@ class User(BaseModel):
         cascade="all, delete-orphan",
         lazy="select",
     )
-    stores: Mapped[list] = relationship(
+    stores: Mapped[list["Store"]] = relationship(
         "Store",
         back_populates="owner",
         cascade="all, delete-orphan",

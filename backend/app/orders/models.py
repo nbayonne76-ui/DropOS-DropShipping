@@ -96,7 +96,7 @@ class Order(TenantMixin, BaseModel):
     currency: Mapped[str] = mapped_column(String(3), default="USD", nullable=False)
 
     # Relationships
-    store: Mapped = relationship("Store", back_populates="orders", lazy="select")
+    store: Mapped["Store"] = relationship("Store", back_populates="orders", lazy="select")
     line_items: Mapped[list["OrderLineItem"]] = relationship(
         "OrderLineItem",
         back_populates="order",

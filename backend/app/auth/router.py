@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Response, status
 
 from app.auth.dependencies import CurrentUser
 from app.auth.schemas import (
@@ -55,8 +55,9 @@ async def refresh(body: RefreshRequest, db: DbDep) -> TokenResponse:
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Revoke a refresh token",
 )
-async def logout(body: LogoutRequest, db: DbDep) -> None:
+async def logout(body: LogoutRequest, db: DbDep) -> Response:
     await AuthService(db).logout(body.refresh_token)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.get(

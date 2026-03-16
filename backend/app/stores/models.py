@@ -37,13 +37,13 @@ class Store(TenantMixin, BaseModel):
     currency: Mapped[str] = mapped_column(String(3), default="USD", nullable=False)
 
     # Relationships
-    owner: Mapped = relationship(
+    owner: Mapped["User"] = relationship(
         "User",
         back_populates="stores",
         foreign_keys=[TenantMixin.tenant_id],
         lazy="select",
     )
-    orders: Mapped[list] = relationship(
+    orders: Mapped[list["Order"]] = relationship(
         "Order",
         back_populates="store",
         cascade="all, delete-orphan",

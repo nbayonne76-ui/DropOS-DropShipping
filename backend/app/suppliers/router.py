@@ -3,7 +3,7 @@ from __future__ import annotations
 import uuid
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Response, status
 
 from app.auth.dependencies import CurrentUser
 from app.database import AsyncSession, get_db
@@ -63,8 +63,9 @@ async def update_supplier(
 )
 async def delete_supplier(
     supplier_id: uuid.UUID, current_user: CurrentUser, db: DbDep
-) -> None:
+) -> Response:
     await SupplierService(db).delete_supplier(supplier_id, current_user.id)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.post(
@@ -92,8 +93,9 @@ async def unlink_product(
     link_id: uuid.UUID,
     current_user: CurrentUser,
     db: DbDep,
-) -> None:
+) -> Response:
     await SupplierService(db).unlink_product(supplier_id, link_id, current_user.id)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.get(

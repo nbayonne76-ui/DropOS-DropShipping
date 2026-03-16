@@ -39,7 +39,6 @@ class User(BaseModel):
         back_populates="owner",
         cascade="all, delete-orphan",
         lazy="select",
-        foreign_keys="Store.tenant_id",
     )
 
     def has_plan(self, required: str) -> bool:

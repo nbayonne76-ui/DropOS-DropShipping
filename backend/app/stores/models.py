@@ -40,7 +40,6 @@ class Store(TenantMixin, BaseModel):
     owner: Mapped["User"] = relationship(
         "User",
         back_populates="stores",
-        foreign_keys=[TenantMixin.tenant_id],
         lazy="select",
     )
     orders: Mapped[list["Order"]] = relationship(

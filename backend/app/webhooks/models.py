@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import uuid
 
-from sqlalchemy import String, Text, UniqueConstraint
+from sqlalchemy import ForeignKey, String, Text, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -15,7 +15,10 @@ class WebhookEvent(BaseModel):
     __tablename__ = "webhook_events"
 
     store_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), nullable=False, index=True
+        UUID(as_uuid=True),
+        ForeignKey("stores.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     # X-Shopify-Webhook-Id header (Shopify guarantees uniqueness per topic)
     shopify_webhook_id: Mapped[str] = mapped_column(

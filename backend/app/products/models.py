@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import uuid
 
-from sqlalchemy import BigInteger, Boolean, Integer, Numeric, String, Text, UniqueConstraint
+from sqlalchemy import BigInteger, Boolean, ForeignKey, Integer, Numeric, String, Text, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -18,7 +18,10 @@ class Product(TenantMixin, BaseModel):
         String(64), nullable=False, index=True
     )
     store_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), nullable=False, index=True
+        UUID(as_uuid=True),
+        ForeignKey("stores.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     title: Mapped[str] = mapped_column(String(512), nullable=False)
     vendor: Mapped[str | None] = mapped_column(String(255), nullable=True)
@@ -63,7 +66,10 @@ class ProductVariant(BaseModel):
     __tablename__ = "product_variants"
 
     product_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), nullable=False, index=True
+        UUID(as_uuid=True),
+        ForeignKey("products.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     shopify_variant_id: Mapped[str] = mapped_column(
         String(64), nullable=False, index=True

@@ -1,37 +1,41 @@
-# DropOS Backend — Production Dependencies
-# Generated for Python 3.11+
-# Pin to minor versions for reproducible builds; patch updates are low-risk.
-
-# ── Web framework ─────────────────────────────────────────────────────────────
-fastapi==0.115.6
-uvicorn[standard]==0.32.1
-python-multipart==0.0.20
-
-# ── Database ──────────────────────────────────────────────────────────────────
-sqlalchemy[asyncio]==2.0.36
-asyncpg==0.30.0
 alembic==1.14.0
-
-# ── Validation & Settings ─────────────────────────────────────────────────────
-pydantic==2.10.4
-pydantic-settings==2.7.0
-
-# ── Auth ──────────────────────────────────────────────────────────────────────
-python-jose[cryptography]==3.3.0
-passlib[bcrypt]==1.7.4
-
-# ── Encryption ────────────────────────────────────────────────────────────────
-cryptography==44.0.0
-
-# ── HTTP client (for Shopify REST calls) ──────────────────────────────────────
-httpx==0.28.1
-
-# ── Indirect / pinned transitive dependencies ─────────────────────────────────
+annotated-types==0.7.0
 anyio==4.7.0
+asyncpg==0.30.0
+bcrypt==3.2.2
 certifi==2024.12.14
+cffi==2.0.0
+click==8.3.1
+cryptography==44.0.0
+dnspython==2.8.0
+ecdsa==0.19.1
+email-validator==2.3.0
+fastapi==0.115.6
+greenlet==3.3.2
 h11==0.14.0
 httpcore==1.0.7
+httptools==0.7.1
+httpx==0.28.1
 idna==3.10
+Mako==1.3.10
+MarkupSafe==3.0.3
+passlib==1.7.4
+pyasn1==0.6.2
+pycparser==3.0
+pydantic==2.10.4
+pydantic-settings==2.7.0
+pydantic_core==2.27.2
+python-dotenv==1.2.2
+python-jose==3.3.0
+python-multipart==0.0.20
+PyYAML==6.0.3
+rsa==4.9.1
+six==1.17.0
 sniffio==1.3.1
+SQLAlchemy==2.0.36
 starlette==0.41.3
 typing_extensions==4.12.2
+uvicorn==0.32.1
+uvloop==0.22.1
+watchfiles==1.1.1
+websockets==16.0

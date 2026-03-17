@@ -28,7 +28,7 @@ export default function StoresPage() {
         title="Connected Stores"
         subtitle={`${stores.length} store${stores.length !== 1 ? "s" : ""} connected`}
         action={
-          <Link href="/dashboard/stores/connect">
+          <Link href="/stores/connect">
             <Button leftIcon={<Plus className="w-4 h-4" />}>
               Connect Store
             </Button>
@@ -54,7 +54,7 @@ export default function StoresPage() {
             Connect your Shopify or WooCommerce store to start tracking
             profits automatically.
           </p>
-          <Link href="/dashboard/stores/connect">
+          <Link href="/stores/connect">
             <Button leftIcon={<Plus className="w-4 h-4" />}>
               Connect your first store
             </Button>

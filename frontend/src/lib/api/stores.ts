@@ -10,9 +10,7 @@ export async function getStore(storeId: string): Promise<Store> {
 }
 
 export async function connectShopifyStore(domain: string): Promise<{ oauth_url: string }> {
-  return apiClient.post<{ oauth_url: string }>("/stores/shopify/connect", {
-    domain,
-  });
+  return apiClient.get<{ oauth_url: string }>(`/stores/oauth/start?shop=${encodeURIComponent(domain)}`);
 }
 
 export async function triggerSync(storeId: string): Promise<{ message: string }> {

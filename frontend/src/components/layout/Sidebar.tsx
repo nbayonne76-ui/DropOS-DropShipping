@@ -22,21 +22,19 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { href: "/dashboard/overview", label: "Overview", icon: LayoutDashboard },
-  { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3 },
-  { href: "/dashboard/orders", label: "Orders", icon: ShoppingCart },
-  { href: "/dashboard/products", label: "Products", icon: Package },
-  { href: "/dashboard/suppliers", label: "Suppliers", icon: Truck },
-  { href: "/dashboard/stores", label: "Stores", icon: Store },
-  { href: "/dashboard/settings", label: "Settings", icon: Settings },
+  { href: "/overview", label: "Overview", icon: LayoutDashboard },
+  { href: "/analytics", label: "Analytics", icon: BarChart3 },
+  { href: "/orders", label: "Orders", icon: ShoppingCart },
+  { href: "/products", label: "Products", icon: Package },
+  { href: "/suppliers", label: "Suppliers", icon: Truck },
+  { href: "/stores", label: "Stores", icon: Store },
+  { href: "/settings", label: "Settings", icon: Settings },
 ];
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { sidebarOpen, setSidebarOpen } = useAppStore((s) => ({
-    sidebarOpen: s.sidebarOpen,
-    setSidebarOpen: s.setSidebarOpen,
-  }));
+  const sidebarOpen = useAppStore((s) => s.sidebarOpen);
+  const setSidebarOpen = useAppStore((s) => s.setSidebarOpen);
 
   return (
     <aside
@@ -47,7 +45,7 @@ export function Sidebar() {
     >
       {/* Logo */}
       <div className="flex items-center h-16 px-4 border-b border-neutral-200 flex-shrink-0">
-        <Link href="/dashboard/overview" className="flex items-center gap-2.5 min-w-0">
+        <Link href="/overview" className="flex items-center gap-2.5 min-w-0">
           <div className="w-8 h-8 rounded-lg bg-primary-600 flex items-center justify-center flex-shrink-0">
             <span className="text-white font-bold text-sm">D</span>
           </div>

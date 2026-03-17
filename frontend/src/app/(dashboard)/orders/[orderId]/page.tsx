@@ -61,7 +61,7 @@ export default function OrderDetailPage({ params }: OrderDetailPageProps) {
     return (
       <div className="text-center py-16">
         <p className="text-neutral-500">Order not found.</p>
-        <Link href="/dashboard/orders" className="text-primary-600 text-sm mt-2 inline-block">
+        <Link href="/orders" className="text-primary-600 text-sm mt-2 inline-block">
           Back to orders
         </Link>
       </div>
@@ -72,7 +72,7 @@ export default function OrderDetailPage({ params }: OrderDetailPageProps) {
     <div className="space-y-6">
       <div>
         <Link
-          href="/dashboard/orders"
+          href="/orders"
           className="inline-flex items-center gap-1.5 text-sm text-neutral-500 hover:text-neutral-700 mb-3"
         >
           <ArrowLeft className="w-4 h-4" />

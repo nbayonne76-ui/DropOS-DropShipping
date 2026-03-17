@@ -1,26 +1,25 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { login } from "@/lib/api/auth";
 import { useAppStore } from "@/store/appStore";
-import type { Metadata } from "next";
 
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirect = searchParams.get("redirect") ?? "/dashboard/overview";
+  const redirect = searchParams.get("redirect") ?? "/overview";
 
-  const { setTokens } = useAppStore((s) => ({ setTokens: s.setTokens }));
+  const setTokens = useAppStore((s) => s.setTokens);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
     setIsLoading(true);

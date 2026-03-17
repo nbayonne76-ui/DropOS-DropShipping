@@ -18,10 +18,8 @@ interface UseAnalyticsResult {
 }
 
 export function useAnalytics(options: UseAnalyticsOptions = {}): UseAnalyticsResult {
-  const { dateRange, activeStoreId } = useAppStore((s) => ({
-    dateRange: s.dateRange,
-    activeStoreId: s.activeStoreId,
-  }));
+  const dateRange = useAppStore((s) => s.dateRange);
+  const activeStoreId = useAppStore((s) => s.activeStoreId);
 
   const storeId = options.storeId ?? activeStoreId ?? undefined;
   const from = format(dateRange.from, "yyyy-MM-dd");

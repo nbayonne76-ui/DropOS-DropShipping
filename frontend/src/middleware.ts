@@ -1,18 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const PROTECTED_PREFIX = "/dashboard";
+const PROTECTED_PREFIXES = ["/overview", "/analytics", "/orders", "/products", "/suppliers", "/stores", "/settings"];
 const PUBLIC_PATHS = ["/login", "/register", "/", "/api"];
 
 export function middleware(request: NextRequest): NextResponse {
   const { pathname } = request.nextUrl;
 
   // Allow all public paths and API routes
-  if (PUBLIC_PATHS.some((p) => pathname.startsWith(p))) {
+  if (PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + "/"))) {
     return NextResponse.next();
   }
 
-  // Protect /dashboard/* routes
-  if (pathname.startsWith(PROTECTED_PREFIX)) {
+  // Protect dashboard routes
+  if (PROTECTED_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + "/"))) {
     const accessToken = request.cookies.get("access_token")?.value;
 
     if (!accessToken) {

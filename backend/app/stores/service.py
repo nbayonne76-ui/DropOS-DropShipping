@@ -109,6 +109,37 @@ class StoreService:
             sync_cursor=store.sync_cursor,
         )
 
+    async def upsert_oauth_store(
+        self,
+        tenant_id: uuid.UUID,
+        shopify_domain: str,
+        name: str,
+        currency: str,
+        access_token: str,
+    ) -> StoreResponse:
+        """Create or update a store after completing Shopify OAuth."""
+        existing = await self.db.scalar(
+            select(Store).where(Store.shopify_domain == shopify_domain)
+        )
+        if existing:
+            existing.name = name
+            existing.currency = currency
+            existing.shopify_access_token_encrypted = encrypt(access_token)
+            existing.is_active = True
+            existing.deleted_at = None
+            store = existing
+        else:
+            store = Store(
+                tenant_id=tenant_id,
+                name=name,
+                shopify_domain=shopify_domain,
+                currency=currency,
+                shopify_access_token_encrypted=encrypt(access_token),
+            )
+            self.db.add(store)
+        await self.db.flush()
+        return StoreResponse.model_validate(store)
+
     # ── Helpers ───────────────────────────────────────────────────────────────
 
     async def _get_owned(self, store_id: uuid.UUID, tenant_id: uuid.UUID) -> Store:

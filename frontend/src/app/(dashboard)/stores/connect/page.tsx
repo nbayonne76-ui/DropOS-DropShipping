@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, ExternalLink } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -24,7 +24,7 @@ export default function ConnectStorePage() {
     return d;
   }
 
-  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
 
@@ -49,7 +49,7 @@ export default function ConnectStorePage() {
     <div className="max-w-lg mx-auto space-y-6">
       <div>
         <Link
-          href="/dashboard/stores"
+          href="/stores"
           className="inline-flex items-center gap-1.5 text-sm text-neutral-500 hover:text-neutral-700 mb-3"
         >
           <ArrowLeft className="w-4 h-4" />

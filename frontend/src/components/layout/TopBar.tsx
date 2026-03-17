@@ -10,14 +10,10 @@ import { logout } from "@/lib/api/auth";
 
 export function TopBar() {
   const router = useRouter();
-  const { user, activeStoreId, setActiveStore, logout: storeLogout } = useAppStore(
-    (s) => ({
-      user: s.user,
-      activeStoreId: s.activeStoreId,
-      setActiveStore: s.setActiveStore,
-      logout: s.logout,
-    })
-  );
+  const user = useAppStore((s) => s.user);
+  const activeStoreId = useAppStore((s) => s.activeStoreId);
+  const setActiveStore = useAppStore((s) => s.setActiveStore);
+  const storeLogout = useAppStore((s) => s.logout);
   const { stores } = useStores();
 
   const [storeOpen, setStoreOpen] = useState(false);
@@ -137,14 +133,14 @@ export function TopBar() {
         {userOpen && (
           <div className="absolute top-full mt-1.5 right-0 w-48 bg-white rounded-xl border border-neutral-200 shadow-lg z-50 py-1 overflow-hidden">
             <button
-              onClick={() => { router.push("/dashboard/settings"); setUserOpen(false); }}
+              onClick={() => { router.push("/settings"); setUserOpen(false); }}
               className="w-full px-4 py-2 text-sm text-left text-neutral-700 hover:bg-neutral-50 flex items-center gap-2"
             >
               <User className="w-4 h-4 text-neutral-400" />
               Profile
             </button>
             <button
-              onClick={() => { router.push("/dashboard/settings"); setUserOpen(false); }}
+              onClick={() => { router.push("/settings"); setUserOpen(false); }}
               className="w-full px-4 py-2 text-sm text-left text-neutral-700 hover:bg-neutral-50 flex items-center gap-2"
             >
               <Settings className="w-4 h-4 text-neutral-400" />

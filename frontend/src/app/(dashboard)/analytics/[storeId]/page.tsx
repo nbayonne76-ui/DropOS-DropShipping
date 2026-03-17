@@ -34,7 +34,7 @@ export default function StoreAnalyticsPage({ params }: StoreAnalyticsPageProps) 
     <div className="space-y-6">
       <div>
         <Link
-          href="/dashboard/analytics"
+          href="/analytics"
           className="inline-flex items-center gap-1.5 text-sm text-neutral-500 hover:text-neutral-700 mb-3"
         >
           <ArrowLeft className="w-4 h-4" />

@@ -12,10 +12,8 @@ interface UseDateRangeResult {
 }
 
 export function useDateRange(): UseDateRangeResult {
-  const { dateRange, setDateRange } = useAppStore((s) => ({
-    dateRange: s.dateRange,
-    setDateRange: s.setDateRange,
-  }));
+  const dateRange = useAppStore((s) => s.dateRange);
+  const setDateRange = useAppStore((s) => s.setDateRange);
 
   const [preset, setPresetState] = useState<DateRangePreset>("30d");
 

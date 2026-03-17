@@ -8,27 +8,7 @@ import type {
 } from "@/types/api";
 
 export async function login(data: LoginRequest): Promise<AuthTokens> {
-  // FastAPI OAuth2 expects form-encoded body for token endpoint
-  const formData = new URLSearchParams({
-    username: data.email,
-    password: data.password,
-  });
-
-  const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8001";
-  const res = await fetch(`${BASE_URL}/api/v1/auth/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: formData.toString(),
-  });
-
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ detail: "Login failed" }));
-    throw new Error(
-      typeof err.detail === "string" ? err.detail : "Invalid credentials"
-    );
-  }
-
-  return res.json() as Promise<AuthTokens>;
+  return apiClient.post<AuthTokens>("/auth/login", data);
 }
 
 export async function register(data: RegisterRequest): Promise<User> {

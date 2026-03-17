@@ -119,7 +119,7 @@ export default function OrdersPage() {
                 <OrderRow
                   key={order.id}
                   order={order}
-                  onClick={() => router.push(`/dashboard/orders/${order.id}`)}
+                  onClick={() => router.push(`/orders/${order.id}`)}
                 />
               ))
             )}

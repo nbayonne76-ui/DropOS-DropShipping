@@ -6,6 +6,10 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field
 
 
+class OAuthStartResponse(BaseModel):
+    oauth_url: str
+
+
 class StoreBase(BaseModel):
     name: str = Field(max_length=200)
     shopify_domain: str = Field(

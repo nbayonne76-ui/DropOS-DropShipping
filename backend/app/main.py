@@ -113,6 +113,16 @@ def create_app() -> FastAPI:
             content={"detail": "An unexpected internal error occurred."},
         )
 
+    # ── Models (must be imported before routers so SQLAlchemy resolves all
+    #    cross-model relationships before any mapper is initialised) ────────────
+    import importlib
+    for _mod in (
+        "app.auth.models", "app.stores.models", "app.orders.models",
+        "app.products.models", "app.suppliers.models",
+        "app.tariffs.models", "app.webhooks.models",
+    ):
+        importlib.import_module(_mod)
+
     # ── Routers ────────────────────────────────────────────────────────────────
     from app.analytics.router import router as analytics_router
     from app.auth.router import router as auth_router

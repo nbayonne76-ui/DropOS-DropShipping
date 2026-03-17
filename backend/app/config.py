@@ -39,6 +39,12 @@ class Settings(BaseSettings):
     # ── Shopify ───────────────────────────────────────────────────────────────
     SHOPIFY_API_KEY: str = Field(default="")
     SHOPIFY_API_SECRET: str = Field(default="")
+    SHOPIFY_SCOPES: str = Field(
+        default="read_orders,write_orders,read_products,write_products,read_inventory,write_inventory,read_fulfillments,write_fulfillments"
+    )
+    SHOPIFY_REDIRECT_URI: str = Field(
+        default="http://localhost:8001/api/v1/stores/oauth/callback"
+    )
 
     # ── CORS ──────────────────────────────────────────────────────────────────
     ALLOWED_ORIGINS: list[str] = Field(

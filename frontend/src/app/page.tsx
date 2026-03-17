@@ -71,7 +71,7 @@ function DashboardMock() {
               <div className="w-6 h-6 rounded-full bg-primary-700 flex items-center justify-center text-[9px] font-bold text-white">JD</div>
               <div>
                 <div className="text-[10px] font-medium text-neutral-300">Founding Member</div>
-                <div className="text-[9px] text-primary-400 font-medium">Free — 1 year</div>
+                <div className="text-[9px] text-primary-400 font-medium">Free, 1 year</div>
               </div>
             </div>
           </div>
@@ -89,7 +89,7 @@ function DashboardMock() {
           <div className="grid grid-cols-3 gap-2 flex-shrink-0">
             <div className="col-span-2 bg-neutral-800 rounded-xl border border-neutral-700 p-3">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] font-semibold text-neutral-300">Profit trend — last 30 days</span>
+                <span className="text-[10px] font-semibold text-neutral-300">Profit trend: last 30 days</span>
                 <span className="text-[10px] text-success-500 font-medium">+$2,340 vs last month</span>
               </div>
               <div className="flex items-end gap-1 h-16">
@@ -182,25 +182,25 @@ function SpotCounter({ claimed = 47, total = 100 }: { claimed?: number; total?: 
 
 export default function LandingPage() {
   const features = [
-    { icon: TrendingUp, color: "bg-primary-500/15 text-primary-400",  title: "Real Profit Tracking",       description: "True net profit on every order — supplier cost, shipping, platform fees, ad spend, returns, and customs all deducted automatically." },
+    { icon: TrendingUp, color: "bg-primary-500/15 text-primary-400",  title: "Real Profit Tracking",       description: "True net profit on every order. Supplier cost, shipping, platform fees, ad spend, returns, and customs all deducted automatically." },
     { icon: DollarSign, color: "bg-success-500/15 text-success-400",  title: "Landed Cost Calculator",     description: "Know exactly what a product costs before you sell it. Stack all 8 cost layers and get a suggested retail price at your target margin." },
-    { icon: Store,      color: "bg-warning-500/15 text-warning-400",  title: "Multi-Store Dashboard",      description: "Connect multiple Shopify stores. Compare revenue, costs, and profit side-by-side — one screen, complete picture." },
+    { icon: Store,      color: "bg-warning-500/15 text-warning-400",  title: "Multi-Store Dashboard",      description: "Connect multiple Shopify stores. Compare revenue, costs, and profit side-by-side. One screen, complete picture." },
     { icon: Zap,        color: "bg-primary-500/15 text-primary-400",  title: "Automatic Sync",             description: "GraphQL-powered order synchronization pulls data from connected stores in real time. Full and incremental sync. No manual entry." },
     { icon: Package,    color: "bg-success-500/15 text-success-400",  title: "Supplier Scorecards",        description: "Track delivery rates, stock accuracy, and dispute rates per supplier. Composite scores surface your best and worst partners instantly." },
     { icon: Shield,     color: "bg-danger-500/15 text-danger-400",    title: "Enterprise Security",        description: "Shopify OAuth 2.0 with PKCE, encrypted token storage, strict SQLAlchemy ORM, and zero known CVEs. Your data stays yours." },
   ];
 
   const steps = [
-    { n: "01", icon: Store,      title: "Connect your store",       desc: "One-click Shopify OAuth — authorize in 30 seconds, no API keys to manage." },
+    { n: "01", icon: Store,      title: "Connect your store",       desc: "One-click Shopify OAuth. Authorize in 30 seconds, no API keys to manage." },
     { n: "02", icon: Zap,        title: "Orders sync automatically", desc: "GraphQL pulls historical and live orders. Costs are applied based on your configuration." },
-    { n: "03", icon: TrendingUp, title: "See your real numbers",    desc: "Live dashboard shows true profit, margin trends, and supplier performance — no setup required." },
+    { n: "03", icon: TrendingUp, title: "See your real numbers",    desc: "Live dashboard shows true profit, margin trends, and supplier performance. No setup required." },
   ];
 
   const faqs = [
     { q: "Does DropOS work with WooCommerce?",     a: "Shopify is fully supported today. WooCommerce and other platforms are on the roadmap for Q3 2026." },
     { q: "How accurate is the profit calculation?", a: "DropOS calculates 8 cost layers per order: supplier price, shipping, platform fees, payment processing, ad spend, returns, customs, and overhead. If you configure them, the number is exact." },
     { q: "Is my Shopify data safe?",               a: "Yes. We use Shopify OAuth 2.0 with PKCE, store tokens encrypted at rest, and never resell your data. The codebase runs on 0 known CVEs." },
-    { q: "What happens after the free year?",      a: "As a Founding Member you lock in our lowest tier pricing — the rate that exists when we go paid. No surprise increases." },
+    { q: "What happens after the free year?",      a: "As a Founding Member you lock in our lowest tier pricing: the rate that exists when we go paid. No surprise increases." },
   ];
 
   return (
@@ -237,7 +237,7 @@ export default function LandingPage() {
           {/* Urgency badge */}
           <div className="inline-flex items-center gap-2 rounded-full border border-warning-500/40 bg-warning-500/10 px-4 py-1.5 text-sm font-semibold text-warning-400 mb-8">
             <Flame className="w-4 h-4" />
-            100 Founding Member spots — First come, first served
+            100 Founding Member spots. First come, first served
           </div>
 
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold leading-[1.05] tracking-tight mb-6">
@@ -250,7 +250,7 @@ export default function LandingPage() {
 
           <p className="text-lg sm:text-xl text-neutral-400 max-w-2xl mx-auto mb-10 leading-relaxed">
             DropOS is a profit tracking & analytics platform built for dropshippers.
-            I&apos;m opening <strong className="text-white">100 founding member spots</strong> — completely free for a full year,
+            I&apos;m opening <strong className="text-white">100 founding member spots</strong>, completely free for a full year,
             in exchange for 30 days of honest feedback.
           </p>
 
@@ -305,7 +305,7 @@ export default function LandingPage() {
               </div>
               <ul className="flex flex-col gap-4">
                 {[
-                  { icon: "✅", text: "1 full year of DropOS — completely free" },
+                  { icon: "✅", text: "1 full year of DropOS, completely free" },
                   { icon: "✅", text: "Full access to every feature from day one" },
                   { icon: "✅", text: "Direct line to me, the founder" },
                   { icon: "✅", text: "Locked-in pricing when we go paid" },
@@ -341,7 +341,7 @@ export default function LandingPage() {
 
               <div className="mt-6 pt-5 border-t border-neutral-800">
                 <p className="text-sm text-neutral-500 italic leading-relaxed">
-                  &ldquo;If you do dropshipping — beginner or advanced, one store or ten —
+                  &ldquo;If you do dropshipping, beginner or advanced, one store or ten.
                   I want to hear from you.&rdquo;
                 </p>
               </div>
@@ -423,7 +423,7 @@ export default function LandingPage() {
               Everything to run a profitable operation
             </h2>
             <p className="text-lg text-neutral-500 max-w-2xl mx-auto">
-              Full access from day one — no feature gates, no locked tiers for founding members.
+              Full access from day one. No feature gates, no locked tiers for founding members.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -487,7 +487,7 @@ export default function LandingPage() {
           <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4">
             Stop guessing your profits.
             <br />
-            <GradientText>Start knowing them — for free.</GradientText>
+            <GradientText>Start knowing them, for free.</GradientText>
           </h2>
           <p className="text-lg text-neutral-500 mb-4 leading-relaxed">
             Connect your Shopify store and see your real numbers in under 2 minutes.

@@ -34,7 +34,7 @@ export function StoreCard({ store, isSyncing = false, onSync, onDisconnect }: St
           {/* Store name & platform */}
           <div className="flex items-center gap-2 mb-1">
             <div className="w-8 h-8 rounded-lg bg-neutral-100 flex items-center justify-center text-xs font-bold text-neutral-600 uppercase flex-shrink-0">
-              {store.platform.slice(0, 2)}
+              {(store.platform ?? "sh").slice(0, 2)}
             </div>
             <div className="min-w-0">
               <h3 className="text-sm font-semibold text-neutral-900 truncate">

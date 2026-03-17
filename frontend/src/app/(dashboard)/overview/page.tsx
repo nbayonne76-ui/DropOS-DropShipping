@@ -13,8 +13,6 @@ export default function OverviewPage() {
   const { range, preset, setPreset, setCustomRange } = useDateRange();
   const { data, isLoading } = useAnalytics();
 
-  const summary = data?.summary;
-
   return (
     <div className="space-y-6">
       <PageHeader
@@ -34,26 +32,22 @@ export default function OverviewPage() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <KPICard
           title="Total Revenue"
-          value={summary ? formatCents(summary.total_revenue_cents) : "—"}
-          changePct={summary?.revenue_change_pct}
+          value={data ? formatCents(data.gross_revenue) : "—"}
           isLoading={isLoading}
         />
         <KPICard
           title="Net Profit"
-          value={summary ? formatCents(summary.total_profit_cents) : "—"}
-          changePct={summary?.profit_change_pct}
+          value={data ? formatCents(data.net_profit) : "—"}
           isLoading={isLoading}
         />
         <KPICard
           title="Avg Margin"
-          value={summary ? formatMargin(summary.avg_margin / 100) : "—"}
-          changePct={summary?.margin_change_pct}
+          value={data ? formatMargin(parseFloat(data.avg_profit_margin)) : "—"}
           isLoading={isLoading}
         />
         <KPICard
           title="Orders"
-          value={summary ? formatNumber(summary.orders_count) : "—"}
-          changePct={summary?.orders_change_pct}
+          value={data ? formatNumber(data.total_orders) : "—"}
           isLoading={isLoading}
         />
       </div>
@@ -64,7 +58,7 @@ export default function OverviewPage() {
         subtitle="Revenue, cost, and profit by store"
       >
         <StoreCompareBar
-          data={data?.store_comparisons}
+          data={undefined}
           isLoading={isLoading}
           height={320}
         />

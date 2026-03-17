@@ -1,12 +1,24 @@
 import { apiClient } from "./client";
 import type { Store } from "@/types/api";
 
+function normalizeStore(raw: Record<string, unknown>): Store {
+  return {
+    ...(raw as unknown as Store),
+    domain: (raw.shopify_domain ?? raw.domain ?? "") as string,
+    platform: (raw.platform ?? "shopify") as Store["platform"],
+    sync_status: (raw.sync_status ?? (raw.last_synced_at ? "idle" : "never_synced")) as Store["sync_status"],
+    orders_count: (raw.orders_count ?? 0) as number,
+  };
+}
+
 export async function getStores(): Promise<Store[]> {
-  return apiClient.get<Store[]>("/stores");
+  const raw = await apiClient.get<Record<string, unknown>[]>("/stores");
+  return raw.map(normalizeStore);
 }
 
 export async function getStore(storeId: string): Promise<Store> {
-  return apiClient.get<Store>(`/stores/${storeId}`);
+  const raw = await apiClient.get<Record<string, unknown>>(`/stores/${storeId}`);
+  return normalizeStore(raw);
 }
 
 export async function connectShopifyStore(domain: string): Promise<{ oauth_url: string }> {

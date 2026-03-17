@@ -12,8 +12,8 @@ export async function getAnalyticsSummary(
 ): Promise<AnalyticsSummaryResponse> {
   return apiClient.get<AnalyticsSummaryResponse>("/analytics/summary", {
     store_id: params.store_id,
-    from: params.from,
-    to: params.to,
+    from_date: params.from,
+    to_date: params.to,
     granularity: params.granularity ?? "day",
   });
 }
@@ -21,10 +21,10 @@ export async function getAnalyticsSummary(
 export async function getProfitTrend(
   params: AnalyticsFilterParams
 ): Promise<TrendPoint[]> {
-  return apiClient.get<TrendPoint[]>("/analytics/trend", {
+  return apiClient.get<TrendPoint[]>("/analytics/trends", {
     store_id: params.store_id,
-    from: params.from,
-    to: params.to,
+    from_date: params.from,
+    to_date: params.to,
     granularity: params.granularity ?? "day",
   });
 }
@@ -32,19 +32,19 @@ export async function getProfitTrend(
 export async function getCostBreakdown(
   params: AnalyticsFilterParams
 ): Promise<CostBreakdown> {
-  return apiClient.get<CostBreakdown>("/analytics/cost-breakdown", {
+  return apiClient.get<CostBreakdown>("/analytics/costs", {
     store_id: params.store_id,
-    from: params.from,
-    to: params.to,
+    from_date: params.from,
+    to_date: params.to,
   });
 }
 
 export async function getStoreComparisons(
   params: Omit<AnalyticsFilterParams, "store_id">
 ): Promise<StoreComparison[]> {
-  return apiClient.get<StoreComparison[]>("/analytics/store-comparisons", {
-    from: params.from,
-    to: params.to,
+  return apiClient.get<StoreComparison[]>("/analytics/stores/comparison", {
+    from_date: params.from,
+    to_date: params.to,
   });
 }
 

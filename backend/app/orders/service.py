@@ -149,6 +149,10 @@ class OrderService:
                 shipping_country=(
                     payload.get("shipping_address", {}).get("country_code")
                 ),
+                # Explicit Python-level defaults (DB defaults not applied until after flush)
+                cogs=0, shipping_cost=0, platform_fee=0, payment_fee=0,
+                chargeback_fee=0, refund_fee=0, fx_loss=0, import_duty=0,
+                total_cost=0, net_profit=0, net_revenue=0,
             )
             self.db.add(order)
         else:

@@ -39,15 +39,19 @@ export type StoreSyncStatus = "idle" | "syncing" | "error" | "never_synced";
 
 export interface Store {
   id: string;
-  user_id: string;
+  tenant_id: string;
   name: string;
+  shopify_domain: string;
+  /** Alias for shopify_domain — used in UI */
   domain: string;
   platform: StorePlatform;
   currency: string;
+  is_active: boolean;
   sync_status: StoreSyncStatus;
   last_synced_at: string | null;
   orders_count: number;
   created_at: string;
+  updated_at: string;
 }
 
 // ─── Orders ─────────────────────────────────────────────────────────────────
@@ -153,10 +157,18 @@ export interface StoreComparison {
 }
 
 export interface AnalyticsSummaryResponse {
-  summary: DashboardSummary;
-  trend: TrendPoint[];
-  cost_breakdown: CostBreakdown;
-  store_comparisons: StoreComparison[];
+  tenant_id: string;
+  store_id: string | null;
+  from_date: string;
+  to_date: string;
+  total_orders: number;
+  gross_revenue: number;
+  net_revenue: number;
+  total_cost: number;
+  net_profit: number;
+  avg_profit_margin: string;
+  total_refunds: number;
+  refund_rate: string;
 }
 
 // ─── Suppliers ───────────────────────────────────────────────────────────────

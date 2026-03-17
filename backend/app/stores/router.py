@@ -151,9 +151,12 @@ async def delete_store(
     summary="Trigger an incremental sync from Shopify",
 )
 async def trigger_sync(
-    store_id: uuid.UUID, current_user: CurrentUser, db: DbDep
+    store_id: uuid.UUID,
+    current_user: CurrentUser,
+    db: DbDep,
+    full: bool = Query(default=False, description="Set true to re-sync all orders from scratch"),
 ) -> SyncStatusResponse:
-    return await StoreService(db).trigger_sync(store_id, current_user.id)
+    return await StoreService(db).trigger_sync(store_id, current_user.id, full_sync=full)
 
 
 @router.get(

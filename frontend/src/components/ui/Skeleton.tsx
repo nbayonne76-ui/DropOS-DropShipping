@@ -4,16 +4,19 @@ interface SkeletonProps {
   className?: string;
   width?: string | number;
   height?: string | number;
+  style?: React.CSSProperties;
 }
 
-export function Skeleton({ className, width, height }: SkeletonProps) {
+import React from "react";
+
+export function Skeleton({ className, width, height, style }: SkeletonProps) {
   return (
     <div
       className={cn(
         "animate-pulse rounded-md bg-neutral-200",
         className
       )}
-      style={{ width, height }}
+      style={{ width, height, ...style }}
     />
   );
 }

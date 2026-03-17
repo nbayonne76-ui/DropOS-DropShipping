@@ -3,7 +3,7 @@ import { getOrders } from "@/lib/api/orders";
 import type { Order, PaginatedResponse } from "@/types/api";
 import type { OrderFilterParams } from "@/types/analytics";
 
-interface UseOrdersOptions extends OrderFilterParams {}
+type UseOrdersOptions = OrderFilterParams;
 
 interface UseOrdersResult {
   data: PaginatedResponse<Order> | undefined;

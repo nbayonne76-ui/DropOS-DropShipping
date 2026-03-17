@@ -5,14 +5,13 @@ import { useRouter } from "next/navigation";
 import { ShoppingCart } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { DateRangePicker } from "@/components/ui/DateRangePicker";
-import { Badge } from "@/components/ui/Badge";
 import { OrderRow } from "@/components/orders/OrderRow";
 import { useOrders } from "@/hooks/useOrders";
 import { useStores } from "@/hooks/useStores";
 import { useDateRange } from "@/hooks/useDateRange";
 import { format } from "date-fns";
 import type { OrderStatus } from "@/types/api";
-import { ORDER_STATUS_LABELS, ORDER_STATUS_COLORS } from "@/lib/constants";
+import { ORDER_STATUS_LABELS } from "@/lib/constants";
 
 const STATUS_OPTIONS: (OrderStatus | "all")[] = [
   "all", "pending", "paid", "fulfilled", "refunded", "cancelled",

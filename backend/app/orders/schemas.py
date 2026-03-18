@@ -58,10 +58,40 @@ class OrderResponse(BaseModel):
     customer_email: str | None
     shipping_country: str | None
 
+    # Fulfillment
+    fulfillment_status: str = Field(
+        default="unfulfilled",
+        description="unfulfilled | partial | fulfilled",
+    )
+    shopify_fulfillment_id: str | None = None
+    tracking_number: str | None = None
+    tracking_company: str | None = None
+    fulfilled_at: datetime | None = None
+
     created_at: datetime
     updated_at: datetime
 
     line_items: list[OrderLineItemResponse] = []
+
+
+class RefundResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    order_id: uuid.UUID
+    shopify_refund_id: str
+    amount: int = Field(description="Amount refunded in cents.")
+    currency: str
+    reason: str | None
+    note: str | None
+    refunded_at: datetime | None
+    created_at: datetime
+
+
+class FulfillOrderRequest(BaseModel):
+    tracking_number: str | None = Field(default=None, max_length=255)
+    tracking_company: str | None = Field(default=None, max_length=128)
+    notify_customer: bool = Field(default=True)
 
 
 class UpdateOrderCostsRequest(BaseModel):

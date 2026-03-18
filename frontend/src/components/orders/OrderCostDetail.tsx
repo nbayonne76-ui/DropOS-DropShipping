@@ -14,14 +14,14 @@ interface OrderCostDetailProps {
 }
 
 const EDITABLE_COST_KEYS: (keyof UpdateOrderCostsRequest)[] = [
-  "supplier_cost_cents",
-  "platform_fee_cents",
-  "payment_fee_cents",
-  "shipping_cost_cents",
-  "return_cost_cents",
-  "ad_spend_cents",
-  "customs_duty_cents",
-  "other_cost_cents",
+  "cogs",
+  "shipping_cost",
+  "platform_fee",
+  "payment_fee",
+  "chargeback_fee",
+  "refund_fee",
+  "fx_loss",
+  "import_duty",
 ];
 
 export function OrderCostDetail({
@@ -192,11 +192,11 @@ export function OrderCostDetail({
                 <td
                   className={cn(
                     "pt-3 text-right text-sm font-bold tabular-nums",
-                    order.net_profit_cents >= 0 ? "text-success-600" : "text-danger-600"
+                    order.net_profit >= 0 ? "text-success-600" : "text-danger-600"
                   )}
                 >
-                  {order.net_profit_cents >= 0 ? "+" : ""}
-                  {formatCents(order.net_profit_cents, order.currency)}
+                  {order.net_profit >= 0 ? "+" : ""}
+                  {formatCents(order.net_profit, order.currency)}
                 </td>
                 <td />
               </tr>

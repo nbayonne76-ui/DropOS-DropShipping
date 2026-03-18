@@ -11,7 +11,7 @@ import { formatCents, formatMargin, formatNumber } from "@/lib/formatters";
 
 export default function OverviewPage() {
   const { range, preset, setPreset, setCustomRange } = useDateRange();
-  const { data, isLoading } = useAnalytics();
+  const { summary, comparisons, isLoading } = useAnalytics();
 
   return (
     <div className="space-y-6">
@@ -32,22 +32,22 @@ export default function OverviewPage() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <KPICard
           title="Total Revenue"
-          value={data ? formatCents(data.gross_revenue) : "—"}
+          value={summary ? formatCents(summary.gross_revenue) : "—"}
           isLoading={isLoading}
         />
         <KPICard
           title="Net Profit"
-          value={data ? formatCents(data.net_profit) : "—"}
+          value={summary ? formatCents(summary.net_profit) : "—"}
           isLoading={isLoading}
         />
         <KPICard
           title="Avg Margin"
-          value={data ? formatMargin(parseFloat(data.avg_profit_margin)) : "—"}
+          value={summary ? formatMargin(parseFloat(summary.avg_profit_margin)) : "—"}
           isLoading={isLoading}
         />
         <KPICard
           title="Orders"
-          value={data ? formatNumber(data.total_orders) : "—"}
+          value={summary ? formatNumber(summary.total_orders) : "—"}
           isLoading={isLoading}
         />
       </div>
@@ -58,7 +58,7 @@ export default function OverviewPage() {
         subtitle="Revenue, cost, and profit by store"
       >
         <StoreCompareBar
-          data={undefined}
+          data={comparisons}
           isLoading={isLoading}
           height={320}
         />

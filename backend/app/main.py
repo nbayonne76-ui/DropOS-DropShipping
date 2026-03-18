@@ -120,13 +120,25 @@ def create_app() -> FastAPI:
         "app.auth.models", "app.stores.models", "app.orders.models",
         "app.products.models", "app.suppliers.models",
         "app.tariffs.models", "app.webhooks.models",
+        "app.notifications.models", "app.team.models",
+        "app.api_keys.models", "app.orders.refund_models",
+        "app.audit_log.models", "app.purchase_orders.models",
+        "app.returns.models",
     ):
         importlib.import_module(_mod)
 
     # ── Routers ────────────────────────────────────────────────────────────────
     from app.analytics.router import router as analytics_router
+    from app.api_keys.router import router as api_keys_router
+    from app.audit_log.router import router as audit_log_router
+    from app.purchase_orders.router import router as purchase_orders_router
+    from app.returns.router import router as returns_router
     from app.auth.router import router as auth_router
+    from app.billing.router import router as billing_router
+    from app.jobs.router import router as jobs_router
+    from app.notifications.router import router as notifications_router
     from app.orders.router import router as orders_router
+    from app.team.router import router as team_router
     from app.products.router import router as products_router
     from app.stores.router import router as stores_router
     from app.suppliers.router import router as suppliers_router
@@ -142,6 +154,14 @@ def create_app() -> FastAPI:
     app.include_router(suppliers_router, prefix=prefix)
     app.include_router(products_router, prefix=prefix)
     app.include_router(webhooks_router, prefix=prefix)
+    app.include_router(jobs_router, prefix=prefix)
+    app.include_router(billing_router, prefix=prefix)
+    app.include_router(notifications_router, prefix=prefix)
+    app.include_router(team_router, prefix=prefix)
+    app.include_router(api_keys_router, prefix=prefix)
+    app.include_router(audit_log_router, prefix=prefix)
+    app.include_router(purchase_orders_router, prefix=prefix)
+    app.include_router(returns_router, prefix=prefix)
 
     # ── Health check ───────────────────────────────────────────────────────────
 

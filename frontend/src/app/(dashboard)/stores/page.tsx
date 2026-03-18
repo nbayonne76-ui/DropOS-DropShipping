@@ -1,22 +1,26 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { Plus, Store as StoreIcon } from "lucide-react";
+import { Plus, Store as StoreIcon, Webhook, ChevronDown } from "lucide-react";
+import { cn } from "@/lib/formatters";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { StoreCard } from "@/components/stores/StoreCard";
+import { WebhooksPanel } from "@/components/stores/WebhooksPanel";
 import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { useStores } from "@/hooks/useStores";
 import { disconnectStore } from "@/lib/api/stores";
 
 export default function StoresPage() {
-  const { stores, isLoading, syncingId, syncStore, mutate } = useStores();
+  const { stores, isLoading, syncState, syncStore, mutate } = useStores();
+  const [openWebhooksId, setOpenWebhooksId] = useState<string | null>(null);
 
   async function handleDisconnect(storeId: string) {
     if (!confirm("Disconnect this store? All synced data will be retained.")) return;
     try {
       await disconnectStore(storeId);
-      await mutate();
+      mutate();
     } catch (err) {
       alert(err instanceof Error ? err.message : "Failed to disconnect store");
     }
@@ -61,16 +65,60 @@ export default function StoresPage() {
           </Link>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {stores.map((store) => (
-            <StoreCard
-              key={store.id}
-              store={store}
-              isSyncing={syncingId === store.id}
-              onSync={syncStore}
-              onDisconnect={handleDisconnect}
-            />
-          ))}
+        <div className="space-y-4">
+          {stores.map((store) => {
+            const webhooksOpen = openWebhooksId === store.id;
+            return (
+              <div
+                key={store.id}
+                className="bg-white rounded-xl border border-neutral-200 shadow-sm overflow-hidden"
+              >
+                {/* Store card (no wrapper border — card is inside the outer box) */}
+                <div className="p-1">
+                  <StoreCard
+                    store={store}
+                    flat
+                    syncJobState={syncState[store.id] ?? { status: "idle" }}
+                    onSync={syncStore}
+                    onDisconnect={handleDisconnect}
+                  />
+                </div>
+
+                {/* Webhooks toggle */}
+                <div className="border-t border-neutral-100">
+                  <button
+                    onClick={() =>
+                      setOpenWebhooksId(webhooksOpen ? null : store.id)
+                    }
+                    className="w-full flex items-center justify-between px-5 py-2.5 text-xs font-medium text-neutral-500 hover:bg-neutral-50 transition-colors"
+                  >
+                    <span className="flex items-center gap-1.5">
+                      <Webhook className="w-3.5 h-3.5" />
+                      Webhooks
+                      {store.webhook_configured && (
+                        <span className="ml-1 w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />
+                      )}
+                    </span>
+                    <ChevronDown
+                      className={cn(
+                        "w-3.5 h-3.5 transition-transform",
+                        webhooksOpen && "rotate-180"
+                      )}
+                    />
+                  </button>
+
+                  {webhooksOpen && (
+                    <div className="px-5 pb-5 pt-3 border-t border-neutral-100">
+                      <WebhooksPanel
+                        store={store}
+                        onStoreUpdated={mutate}
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

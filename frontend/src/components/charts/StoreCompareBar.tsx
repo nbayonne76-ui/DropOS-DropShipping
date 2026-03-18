@@ -60,9 +60,9 @@ export function StoreCompareBar({
 
   const chartData = data.map((s) => ({
     name: s.store_name,
-    Revenue: s.revenue_cents,
-    Cost: s.cost_cents,
-    Profit: s.profit_cents,
+    Revenue: s.gross_revenue,
+    "Net Revenue": s.net_revenue,
+    Profit: s.net_profit,
   }));
 
   return (
@@ -99,7 +99,7 @@ export function StoreCompareBar({
           wrapperStyle={{ fontSize: "12px", paddingTop: "12px" }}
         />
         <Bar dataKey="Revenue" fill="#6366f1" radius={[4, 4, 0, 0]} />
-        <Bar dataKey="Cost" fill="#f59e0b" radius={[4, 4, 0, 0]} />
+        <Bar dataKey="Net Revenue" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
         <Bar dataKey="Profit" fill="#10b981" radius={[4, 4, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>

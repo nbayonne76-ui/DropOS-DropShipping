@@ -14,6 +14,7 @@ from app.common.pagination import Page, PageParams
 from app.orders.cost_calculator import recalculate_order
 from app.orders.models import Order, OrderLineItem
 from app.orders.schemas import (
+    FulfillOrderRequest,
     OrderFilterParams,
     OrderResponse,
     UpdateOrderCostsRequest,
@@ -60,6 +61,29 @@ class OrderService:
 
     async def get_order(self, order_id: uuid.UUID, tenant_id: uuid.UUID) -> OrderResponse:
         order = await self._get_owned(order_id, tenant_id)
+        return OrderResponse.model_validate(order)
+
+    async def recalculate_profit(
+        self, order_id: uuid.UUID, tenant_id: uuid.UUID
+    ) -> OrderResponse:
+        order = await self._get_owned(order_id, tenant_id)
+        computed = recalculate_order(
+            gross_revenue=order.gross_revenue,
+            refund_amount=order.refund_amount,
+            cogs=order.cogs,
+            shipping=order.shipping_cost,
+            platform_fee=order.platform_fee,
+            payment_fee=order.payment_fee,
+            chargeback_fee=order.chargeback_fee,
+            refund_fee=order.refund_fee,
+            fx_loss=order.fx_loss,
+            import_duty=order.import_duty,
+        )
+        order.net_revenue = computed["net_revenue"]
+        order.total_cost = computed["total_cost"]
+        order.net_profit = computed["net_profit"]
+        order.profit_margin = computed["profit_margin"]
+        await self.db.flush()
         return OrderResponse.model_validate(order)
 
     async def update_order_costs(
@@ -202,6 +226,56 @@ class OrderService:
 
         await self.db.flush()
         return order
+
+    async def fulfill_order(
+        self,
+        order_id: uuid.UUID,
+        tenant_id: uuid.UUID,
+        data: FulfillOrderRequest,
+    ) -> OrderResponse:
+        """
+        Calls the Shopify Fulfillment API to mark an order as fulfilled,
+        then persists the fulfillment details locally.
+        """
+        from datetime import timezone
+
+        from sqlalchemy import select as sa_select
+
+        from app.stores.models import Store
+        from app.stores.shopify_fulfillment import fulfill_shopify_order
+
+        order = await self._get_owned(order_id, tenant_id)
+
+        if order.fulfillment_status == "fulfilled":
+            from app.common.exceptions import ConflictError
+            raise ConflictError("Order is already fulfilled.")
+
+        # Load the store to get the access token and domain
+        store = await self.db.scalar(
+            sa_select(Store).where(Store.id == order.store_id)
+        )
+        if not store or not store.shopify_access_token_encrypted:
+            from app.common.exceptions import NotFoundError
+            raise NotFoundError("Store credentials", order.store_id)
+
+        result = await fulfill_shopify_order(
+            shop_domain=store.shopify_domain,
+            encrypted_access_token=store.shopify_access_token_encrypted,
+            shopify_order_id=order.shopify_order_id,
+            tracking_number=data.tracking_number,
+            tracking_company=data.tracking_company,
+            notify_customer=data.notify_customer,
+        )
+
+        order.fulfillment_status = "fulfilled"
+        order.shopify_fulfillment_id = result.shopify_fulfillment_id
+        order.tracking_number = result.tracking_number
+        order.tracking_company = result.tracking_company
+        order.fulfilled_at = datetime.now(tz=timezone.utc)
+        order.status = "fulfilled"
+
+        await self.db.flush()
+        return OrderResponse.model_validate(order)
 
     async def export_csv(
         self,

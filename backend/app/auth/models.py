@@ -23,6 +23,10 @@ class User(BaseModel):
     is_verified: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     # Subscription plan: free | starter | growth | pro
     plan: Mapped[str] = mapped_column(String(20), default="free", nullable=False)
+    # Stripe customer ID (null until first checkout attempt)
+    stripe_customer_id: Mapped[str | None] = mapped_column(
+        String(64), nullable=True, unique=True, index=True
+    )
     # Timezone stored as IANA string e.g. "Europe/Paris"
     timezone: Mapped[str] = mapped_column(String(60), default="UTC", nullable=False)
     avatar_url: Mapped[str | None] = mapped_column(Text, nullable=True)

@@ -1,10 +1,10 @@
 import { ArrowDown } from "lucide-react";
 import { cn, formatCents, formatMargin } from "@/lib/formatters";
-import type { CostBreakdown, DashboardSummary } from "@/types/api";
+import type { AnalyticsSummaryResponse, CostBreakdown } from "@/types/api";
 import { Skeleton } from "@/components/ui/Skeleton";
 
 interface ProfitSummaryPanelProps {
-  summary: DashboardSummary | undefined;
+  summary: AnalyticsSummaryResponse | undefined;
   breakdown: CostBreakdown | undefined;
   isLoading?: boolean;
   currency?: string;
@@ -27,16 +27,16 @@ export function ProfitSummaryPanel({
 }: ProfitSummaryPanelProps) {
   const rows: WaterfallRow[] = summary && breakdown
     ? [
-        { label: "Gross Revenue", amount: summary.total_revenue_cents, type: "revenue", isTotal: true },
-        { label: "Supplier Costs", amount: breakdown.supplier_cost_cents, type: "cost" },
-        { label: "Platform Fees", amount: breakdown.platform_fee_cents, type: "cost" },
-        { label: "Payment Fees", amount: breakdown.payment_fee_cents, type: "cost" },
-        { label: "Shipping Costs", amount: breakdown.shipping_cost_cents, type: "cost" },
-        { label: "Return Costs", amount: breakdown.return_cost_cents, type: "cost" },
-        { label: "Ad Spend", amount: breakdown.ad_spend_cents, type: "cost" },
-        { label: "Customs & Duties", amount: breakdown.customs_duty_cents, type: "cost" },
-        { label: "Other Costs", amount: breakdown.other_cost_cents, type: "cost" },
-        { label: "Net Profit", amount: summary.total_profit_cents, type: "profit", isTotal: true },
+        { label: "Gross Revenue", amount: summary.gross_revenue, type: "revenue", isTotal: true },
+        { label: "Supplier Cost (COGS)", amount: breakdown.cogs, type: "cost" },
+        { label: "Shipping Cost", amount: breakdown.shipping_cost, type: "cost" },
+        { label: "Platform Fee", amount: breakdown.platform_fee, type: "cost" },
+        { label: "Payment Fee", amount: breakdown.payment_fee, type: "cost" },
+        { label: "Chargeback Fee", amount: breakdown.chargeback_fee, type: "cost" },
+        { label: "Refund Fee", amount: breakdown.refund_fee, type: "cost" },
+        { label: "FX Loss", amount: breakdown.fx_loss, type: "cost" },
+        { label: "Import Duty", amount: breakdown.import_duty, type: "cost" },
+        { label: "Net Profit", amount: summary.net_profit, type: "profit", isTotal: true },
       ]
     : [];
 
@@ -108,7 +108,7 @@ export function ProfitSummaryPanel({
             </div>
             {isProfit && (
               <p className="text-xs text-center text-neutral-400 mt-1">
-                Margin: {formatMargin(summary.avg_margin / 100)}
+                Margin: {formatMargin(parseFloat(summary.avg_profit_margin))}
               </p>
             )}
           </div>

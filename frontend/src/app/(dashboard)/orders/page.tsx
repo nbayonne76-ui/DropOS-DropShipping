@@ -2,13 +2,16 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ShoppingCart } from "lucide-react";
+import { Download, ShoppingCart } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { DateRangePicker } from "@/components/ui/DateRangePicker";
+import { Button } from "@/components/ui/Button";
 import { OrderRow } from "@/components/orders/OrderRow";
 import { useOrders } from "@/hooks/useOrders";
 import { useStores } from "@/hooks/useStores";
 import { useDateRange } from "@/hooks/useDateRange";
+import { exportOrdersCsv } from "@/lib/api/orders";
+import { downloadBlob } from "@/lib/formatters";
 import { format } from "date-fns";
 import type { OrderStatus } from "@/types/api";
 import { ORDER_STATUS_LABELS } from "@/lib/constants";
@@ -25,6 +28,22 @@ export default function OrdersPage() {
   const [storeFilter, setStoreFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<OrderStatus | "all">("all");
   const [page, setPage] = useState(1);
+  const [exporting, setExporting] = useState(false);
+
+  async function handleExport() {
+    setExporting(true);
+    try {
+      const blob = await exportOrdersCsv({
+        store_id: storeFilter !== "all" ? storeFilter : undefined,
+        status: statusFilter !== "all" ? statusFilter : undefined,
+        from: format(range.from, "yyyy-MM-dd"),
+        to: format(range.to, "yyyy-MM-dd"),
+      });
+      downloadBlob(blob, `orders-${format(range.from, "yyyy-MM-dd")}-${format(range.to, "yyyy-MM-dd")}.csv`);
+    } finally {
+      setExporting(false);
+    }
+  }
 
   const { data, orders, isLoading } = useOrders({
     store_id: storeFilter !== "all" ? storeFilter : undefined,
@@ -41,12 +60,23 @@ export default function OrdersPage() {
         title="Orders"
         subtitle={`${data?.total ?? 0} orders in period`}
         action={
-          <DateRangePicker
-            value={range}
-            preset={preset}
-            onPresetChange={setPreset}
-            onRangeChange={setCustomRange}
-          />
+          <div className="flex items-center gap-2">
+            <DateRangePicker
+              value={range}
+              preset={preset}
+              onPresetChange={setPreset}
+              onRangeChange={setCustomRange}
+            />
+            <Button
+              variant="secondary"
+              size="sm"
+              loading={exporting}
+              leftIcon={<Download className="w-3.5 h-3.5" />}
+              onClick={handleExport}
+            >
+              Export CSV
+            </Button>
+          </div>
         }
       />
 
@@ -90,6 +120,7 @@ export default function OrdersPage() {
               <th className="px-4 py-3 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wide">Order</th>
               <th className="px-4 py-3 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wide">Date</th>
               <th className="px-4 py-3 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wide">Status</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wide">Fulfillment</th>
               <th className="px-4 py-3 text-right text-xs font-semibold text-neutral-500 uppercase tracking-wide">Revenue</th>
               <th className="px-4 py-3 text-right text-xs font-semibold text-neutral-500 uppercase tracking-wide">Net Profit</th>
               <th className="px-4 py-3 text-right text-xs font-semibold text-neutral-500 uppercase tracking-wide">Margin</th>
@@ -99,7 +130,7 @@ export default function OrdersPage() {
             {isLoading ? (
               Array.from({ length: 10 }).map((_, i) => (
                 <tr key={i} className="border-b border-neutral-100">
-                  {Array.from({ length: 6 }).map((_, j) => (
+                  {Array.from({ length: 7 }).map((_, j) => (
                     <td key={j} className="px-4 py-3">
                       <div className="h-4 bg-neutral-200 rounded animate-pulse" style={{ width: `${50 + Math.random() * 40}%` }} />
                     </td>
@@ -108,7 +139,7 @@ export default function OrdersPage() {
               ))
             ) : orders.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-4 py-16 text-center">
+                <td colSpan={7} className="px-4 py-16 text-center">
                   <ShoppingCart className="w-8 h-8 text-neutral-300 mx-auto mb-2" />
                   <p className="text-sm text-neutral-500">No orders found</p>
                 </td>

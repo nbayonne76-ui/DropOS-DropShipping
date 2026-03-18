@@ -99,6 +99,17 @@ async def unlink_product(
 
 
 @router.get(
+    "/{supplier_id}/products",
+    response_model=list[ProductSupplierLinkResponse],
+    summary="List products linked to this supplier",
+)
+async def list_supplier_products(
+    supplier_id: uuid.UUID, current_user: CurrentUser, db: DbDep
+) -> list[ProductSupplierLinkResponse]:
+    return await SupplierService(db).list_links(supplier_id, current_user.id)
+
+
+@router.get(
     "/{supplier_id}/performance",
     response_model=list[SupplierPerformanceResponse],
     summary="Get historical performance snapshots for a supplier",

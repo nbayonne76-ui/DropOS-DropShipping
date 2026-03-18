@@ -138,6 +138,17 @@ class SupplierService:
         await self.db.delete(link)
         await self.db.flush()
 
+    async def list_links(
+        self, supplier_id: uuid.UUID, tenant_id: uuid.UUID
+    ) -> list[ProductSupplierLinkResponse]:
+        await self._get_owned(supplier_id, tenant_id)  # access check
+        rows = await self.db.scalars(
+            select(ProductSupplierLink)
+            .where(ProductSupplierLink.supplier_id == supplier_id)
+            .order_by(ProductSupplierLink.id)
+        )
+        return [ProductSupplierLinkResponse.model_validate(r) for r in rows.all()]
+
     async def get_performance(
         self, supplier_id: uuid.UUID, tenant_id: uuid.UUID
     ) -> list[SupplierPerformanceResponse]:

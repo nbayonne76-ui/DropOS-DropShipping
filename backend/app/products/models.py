@@ -31,6 +31,9 @@ class Product(TenantMixin, BaseModel):
         comment="active | archived | draft"
     )
 
+    # Inventory — denormalised sum of all variant quantities for fast queries
+    total_inventory: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+
     # Trade compliance fields
     hs_code: Mapped[str | None] = mapped_column(
         String(20), nullable=True,

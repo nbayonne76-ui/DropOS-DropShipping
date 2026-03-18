@@ -26,8 +26,8 @@ interface ProfitTrendChartProps {
 function CustomTooltip({ active, payload, label }: TooltipProps<number, string>) {
   if (!active || !payload?.length) return null;
 
-  const revenue = payload.find((p) => p.dataKey === "revenue_cents");
-  const profit = payload.find((p) => p.dataKey === "profit_cents");
+  const revenue = payload.find((p) => p.dataKey === "net_revenue");
+  const profit = payload.find((p) => p.dataKey === "net_profit");
 
   return (
     <div className="bg-white border border-neutral-200 rounded-xl shadow-lg px-4 py-3 text-sm">
@@ -73,9 +73,9 @@ export function ProfitTrendChart({
     ...point,
     label: (() => {
       try {
-        return format(parseISO(point.date), "MMM d");
+        return format(parseISO(point.period), "MMM d");
       } catch {
-        return point.date;
+        return point.period;
       }
     })(),
   }));
@@ -111,25 +111,25 @@ export function ProfitTrendChart({
         <Tooltip content={<CustomTooltip />} />
         <Legend
           wrapperStyle={{ fontSize: "12px", paddingTop: "12px" }}
-          formatter={(value) => (value === "revenue_cents" ? "Revenue" : "Net Profit")}
+          formatter={(value) => (value === "net_revenue" ? "Revenue" : "Net Profit")}
         />
         <Line
           type="monotone"
-          dataKey="revenue_cents"
+          dataKey="net_revenue"
           stroke="#6366f1"
           strokeWidth={2}
           dot={false}
           activeDot={{ r: 4 }}
-          name="revenue_cents"
+          name="net_revenue"
         />
         <Line
           type="monotone"
-          dataKey="profit_cents"
+          dataKey="net_profit"
           stroke="#10b981"
           strokeWidth={2}
           dot={false}
           activeDot={{ r: 4 }}
-          name="profit_cents"
+          name="net_profit"
         />
       </LineChart>
     </ResponsiveContainer>

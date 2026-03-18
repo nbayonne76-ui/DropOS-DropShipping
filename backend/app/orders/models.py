@@ -90,6 +90,18 @@ class Order(TenantMixin, BaseModel):
         comment="Net profit / net revenue as a decimal, e.g. 0.3250"
     )
 
+    # ── Fulfillment ───────────────────────────────────────────────────────────
+    fulfillment_status: Mapped[str] = mapped_column(
+        String(32), nullable=False, default="unfulfilled", index=True,
+        comment="unfulfilled | partial | fulfilled"
+    )
+    shopify_fulfillment_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    tracking_number: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    tracking_company: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    fulfilled_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+
     # ── Customer / shipping ───────────────────────────────────────────────────
     customer_email: Mapped[str | None] = mapped_column(String(320), nullable=True)
     shipping_country: Mapped[str | None] = mapped_column(String(2), nullable=True)
@@ -99,6 +111,12 @@ class Order(TenantMixin, BaseModel):
     store: Mapped["Store"] = relationship("Store", back_populates="orders", lazy="select")
     line_items: Mapped[list["OrderLineItem"]] = relationship(
         "OrderLineItem",
+        back_populates="order",
+        cascade="all, delete-orphan",
+        lazy="select",
+    )
+    refunds: Mapped[list["Refund"]] = relationship(  # type: ignore[name-defined]
+        "Refund",
         back_populates="order",
         cascade="all, delete-orphan",
         lazy="select",

@@ -52,6 +52,31 @@ class Settings(BaseSettings):
         description="Comma-separated list of allowed CORS origins.",
     )
 
+    # ── Frontend ──────────────────────────────────────────────────────────────
+    FRONTEND_URL: str = Field(
+        default="http://localhost:3000",
+        description="Base URL of the Next.js frontend, used for OAuth redirects.",
+    )
+
+    # ── Stripe ────────────────────────────────────────────────────────────────
+    STRIPE_SECRET_KEY: str = Field(
+        default="",
+        description="Stripe secret API key (sk_live_... or sk_test_...).",
+    )
+    STRIPE_WEBHOOK_SECRET: str = Field(
+        default="",
+        description="Stripe webhook signing secret (whsec_...).",
+    )
+    STRIPE_PRICE_STARTER: str = Field(default="", description="Stripe Price ID for Starter plan.")
+    STRIPE_PRICE_GROWTH: str = Field(default="", description="Stripe Price ID for Growth plan.")
+    STRIPE_PRICE_PRO: str = Field(default="", description="Stripe Price ID for Pro plan.")
+
+    # ── Queue (ARQ / Redis) ───────────────────────────────────────────────────
+    REDIS_URL: str = Field(
+        default="redis://localhost:6379/0",
+        description="Redis connection URL used by the ARQ job queue.",
+    )
+
     # ── App ───────────────────────────────────────────────────────────────────
     ENVIRONMENT: Literal["development", "staging", "production"] = Field(
         default="development"

@@ -42,6 +42,8 @@ class SyncStatusResponse(BaseModel):
     is_active: bool
     last_synced_at: datetime | None
     sync_cursor: str | None
+    # Populated when a background sync job has been enqueued
+    job_id: str | None = None
 
 
 class StoreResponse(BaseModel):
@@ -57,3 +59,12 @@ class StoreResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
     # Access token is intentionally omitted from all responses
+    # True if a webhook_secret has been configured (secret itself is never returned)
+    webhook_configured: bool = False
+
+    @classmethod
+    def model_validate(cls, obj, **kwargs):  # type: ignore[override]
+        instance = super().model_validate(obj, **kwargs)
+        if hasattr(obj, "webhook_secret"):
+            instance.webhook_configured = bool(obj.webhook_secret)
+        return instance

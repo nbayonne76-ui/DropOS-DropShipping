@@ -21,14 +21,14 @@ interface CostBreakdownPieProps {
 }
 
 const COST_KEYS = [
-  "supplier_cost_cents",
-  "platform_fee_cents",
-  "payment_fee_cents",
-  "shipping_cost_cents",
-  "return_cost_cents",
-  "ad_spend_cents",
-  "customs_duty_cents",
-  "other_cost_cents",
+  "cogs",
+  "shipping_cost",
+  "platform_fee",
+  "payment_fee",
+  "chargeback_fee",
+  "refund_fee",
+  "fx_loss",
+  "import_duty",
 ] as const;
 
 function CustomTooltip({ active, payload }: TooltipProps<number, string>) {
@@ -64,7 +64,7 @@ export function CostBreakdownPie({
     );
   }
 
-  const totalCost = breakdown.total_cost_cents || 1;
+  const totalCost = breakdown.total || 1;
   const slices = COST_KEYS.map((key) => {
     const value = breakdown[key] as number;
     return {

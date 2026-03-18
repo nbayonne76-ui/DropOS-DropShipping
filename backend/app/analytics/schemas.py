@@ -84,3 +84,13 @@ class TopOrder(BaseModel):
     net_revenue: int
     net_profit: int
     profit_margin: Decimal | None
+
+
+class CustomerAnalytics(BaseModel):
+    customer_email: str
+    order_count: int
+    total_gross_revenue: int = Field(description="Total gross revenue in cents.")
+    total_net_profit: int = Field(description="Total net profit in cents.")
+    avg_order_value: int = Field(description="Average order value in cents.")
+    total_refunds: int = Field(description="Total refund amount in cents.")
+    last_ordered_at: datetime

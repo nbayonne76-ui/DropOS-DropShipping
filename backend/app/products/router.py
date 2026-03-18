@@ -3,12 +3,13 @@ from __future__ import annotations
 import uuid
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, File, Query, UploadFile, status
 
 from app.auth.dependencies import CurrentUser
 from app.common.pagination import Page, PageParams
 from app.database import AsyncSession, get_db
 from app.products.schemas import (
+    BulkCogsImportResult,
     ProductLandedCostResponse,
     ProductResponse,
     UpdateProductRequest,
@@ -49,6 +50,21 @@ async def update_product(
     db: DbDep,
 ) -> ProductResponse:
     return await ProductService(db).update_product(product_id, current_user.id, body)
+
+
+@router.post(
+    "/bulk-cogs",
+    response_model=BulkCogsImportResult,
+    status_code=status.HTTP_200_OK,
+    summary="Bulk-update unit COGS from a CSV file (sku, unit_cogs_cents)",
+)
+async def bulk_import_cogs(
+    current_user: CurrentUser,
+    db: DbDep,
+    file: UploadFile = File(..., description="CSV with header: sku,unit_cogs_cents"),
+) -> BulkCogsImportResult:
+    csv_bytes = await file.read()
+    return await ProductService(db).bulk_import_cogs(current_user.id, csv_bytes)
 
 
 @router.get(

@@ -3,11 +3,14 @@
 import { RefreshCw, Unlink, CheckCircle2, AlertCircle, Clock, Loader2 } from "lucide-react";
 import { cn, formatDate } from "@/lib/formatters";
 import type { Store, StoreSyncStatus } from "@/types/api";
+import type { SyncJobState } from "@/hooks/useStores";
 import { Badge } from "@/components/ui/Badge";
 
 interface StoreCardProps {
   store: Store;
-  isSyncing?: boolean;
+  syncJobState?: SyncJobState;
+  /** When true, renders without its own border/shadow (used inside a wrapper card) */
+  flat?: boolean;
   onSync: (storeId: string) => void;
   onDisconnect?: (storeId: string) => void;
 }
@@ -22,13 +25,42 @@ const syncStatusConfig: Record<
   never_synced: { label: "Never synced", variant: "neutral", icon: Clock },
 };
 
-export function StoreCard({ store, isSyncing = false, onSync, onDisconnect }: StoreCardProps) {
-  const status = isSyncing ? "syncing" : store.sync_status;
-  const statusCfg = syncStatusConfig[status] ?? syncStatusConfig.idle;
-  const StatusIcon = statusCfg.icon;
+function jobStateToDisplay(
+  jobState: SyncJobState,
+  storeStatus: StoreSyncStatus
+): { label: string; variant: "success" | "warning" | "danger" | "neutral"; icon: React.ElementType; spinning: boolean } {
+  switch (jobState.status) {
+    case "queued":
+      return { label: "Queued…", variant: "neutral", icon: Clock, spinning: false };
+    case "in_progress":
+      return { label: "Syncing…", variant: "neutral", icon: Loader2, spinning: true };
+    case "complete":
+      return { label: "Synced", variant: "success", icon: CheckCircle2, spinning: false };
+    case "error":
+      return { label: "Sync failed", variant: "danger", icon: AlertCircle, spinning: false };
+    default: {
+      const cfg = syncStatusConfig[storeStatus] ?? syncStatusConfig.idle;
+      return { ...cfg, spinning: false };
+    }
+  }
+}
+
+export function StoreCard({
+  store,
+  syncJobState = { status: "idle" },
+  flat = false,
+  onSync,
+  onDisconnect,
+}: StoreCardProps) {
+  const display = jobStateToDisplay(syncJobState, store.sync_status);
+  const isActive =
+    syncJobState.status === "queued" || syncJobState.status === "in_progress";
 
   return (
-    <div className="bg-white rounded-xl border border-neutral-200 p-5 shadow-sm hover:shadow-md transition-shadow">
+    <div className={cn(
+      "p-5",
+      !flat && "bg-white rounded-xl border border-neutral-200 shadow-sm hover:shadow-md transition-shadow"
+    )}>
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           {/* Store name & platform */}
@@ -65,34 +97,39 @@ export function StoreCard({ store, isSyncing = false, onSync, onDisconnect }: St
               </p>
             </div>
           </div>
+
+          {/* Job error message */}
+          {syncJobState.status === "error" && (
+            <p className="mt-2 text-xs text-danger-600 bg-danger-50 rounded-lg px-2 py-1">
+              {syncJobState.message}
+            </p>
+          )}
         </div>
 
         {/* Actions */}
         <div className="flex flex-col items-end gap-2 flex-shrink-0">
-          <Badge variant={statusCfg.variant}>
-            <StatusIcon
-              className={cn(
-                "w-3 h-3",
-                status === "syncing" && "animate-spin"
-              )}
+          <Badge variant={display.variant}>
+            <display.icon
+              className={cn("w-3 h-3", display.spinning && "animate-spin")}
             />
-            {statusCfg.label}
+            {display.label}
           </Badge>
 
           <div className="flex items-center gap-1 mt-1">
             <button
               onClick={() => onSync(store.id)}
-              disabled={isSyncing}
+              disabled={isActive}
               title="Sync now"
               className="p-1.5 rounded-lg text-neutral-400 hover:text-primary-600 hover:bg-primary-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              <RefreshCw className={cn("w-4 h-4", isSyncing && "animate-spin")} />
+              <RefreshCw className={cn("w-4 h-4", display.spinning && "animate-spin")} />
             </button>
             {onDisconnect && (
               <button
                 onClick={() => onDisconnect(store.id)}
+                disabled={isActive}
                 title="Disconnect store"
-                className="p-1.5 rounded-lg text-neutral-400 hover:text-danger-600 hover:bg-danger-50 transition-colors"
+                className="p-1.5 rounded-lg text-neutral-400 hover:text-danger-600 hover:bg-danger-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 <Unlink className="w-4 h-4" />
               </button>

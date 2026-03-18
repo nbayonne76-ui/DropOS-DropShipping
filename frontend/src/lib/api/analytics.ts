@@ -1,9 +1,12 @@
-import { apiClient } from "./client";
+import { apiClient, getAccessToken } from "./client";
 import type {
   AnalyticsSummaryResponse,
   TrendPoint,
   CostBreakdown,
   StoreComparison,
+  TopProduct,
+  TopOrder,
+  CustomerAnalytics,
 } from "@/types/api";
 import type { AnalyticsFilterParams } from "@/types/analytics";
 
@@ -48,24 +51,71 @@ export async function getStoreComparisons(
   });
 }
 
-export async function exportAnalytics(
-  params: AnalyticsFilterParams,
-  format: "csv" | "xlsx" = "csv"
+export async function getTopProducts(
+  params: AnalyticsFilterParams & { limit?: number }
+): Promise<TopProduct[]> {
+  return apiClient.get<TopProduct[]>("/analytics/top-products", {
+    store_id: params.store_id,
+    from_date: params.from,
+    to_date: params.to,
+    limit: params.limit ?? 10,
+  });
+}
+
+export async function getTopOrders(
+  params: AnalyticsFilterParams & { limit?: number }
+): Promise<TopOrder[]> {
+  return apiClient.get<TopOrder[]>("/analytics/top-orders", {
+    store_id: params.store_id,
+    from_date: params.from,
+    to_date: params.to,
+    limit: params.limit ?? 10,
+  });
+}
+
+export async function getCustomers(
+  params: AnalyticsFilterParams & { limit?: number }
+): Promise<CustomerAnalytics[]> {
+  return apiClient.get<CustomerAnalytics[]>("/analytics/customers", {
+    store_id: params.store_id,
+    from_date: params.from,
+    to_date: params.to,
+    limit: params.limit ?? 50,
+  });
+}
+
+export async function exportOrdersCsv(
+  params: AnalyticsFilterParams
 ): Promise<Blob> {
   const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8001";
   const qs = new URLSearchParams({
-    from: params.from,
-    to: params.to,
-    format,
+    from_date: params.from,
+    to_date: params.to,
     ...(params.store_id ? { store_id: params.store_id } : {}),
   });
+  const token = getAccessToken();
   const res = await fetch(
-    `${BASE_URL}/api/v1/analytics/export?${qs.toString()}`,
-    {
-      headers: {
-        Authorization: `Bearer ${document.cookie.match(/access_token=([^;]+)/)?.[1] ?? ""}`,
-      },
-    }
+    `${BASE_URL}/api/v1/analytics/export/orders?${qs.toString()}`,
+    { headers: token ? { Authorization: `Bearer ${token}` } : {} }
+  );
+  if (!res.ok) throw new Error("Export failed");
+  return res.blob();
+}
+
+export async function exportAnalyticsCsv(
+  params: AnalyticsFilterParams
+): Promise<Blob> {
+  const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8001";
+  const qs = new URLSearchParams({
+    from_date: params.from,
+    to_date: params.to,
+    granularity: params.granularity ?? "day",
+    ...(params.store_id ? { store_id: params.store_id } : {}),
+  });
+  const token = getAccessToken();
+  const res = await fetch(
+    `${BASE_URL}/api/v1/analytics/export/summary?${qs.toString()}`,
+    { headers: token ? { Authorization: `Bearer ${token}` } : {} }
   );
   if (!res.ok) throw new Error("Export failed");
   return res.blob();

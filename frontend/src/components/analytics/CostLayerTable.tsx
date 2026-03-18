@@ -11,14 +11,14 @@ interface CostLayerTableProps {
 }
 
 const COST_KEYS: (keyof CostBreakdown)[] = [
-  "supplier_cost_cents",
-  "platform_fee_cents",
-  "payment_fee_cents",
-  "shipping_cost_cents",
-  "return_cost_cents",
-  "ad_spend_cents",
-  "customs_duty_cents",
-  "other_cost_cents",
+  "cogs",
+  "shipping_cost",
+  "platform_fee",
+  "payment_fee",
+  "chargeback_fee",
+  "refund_fee",
+  "fx_loss",
+  "import_duty",
 ];
 
 export function CostLayerTable({
@@ -27,8 +27,7 @@ export function CostLayerTable({
   currency = "USD",
   className,
 }: CostLayerTableProps) {
-  const revenue = breakdown?.gross_revenue_cents ?? 0;
-  const totalCost = breakdown?.total_cost_cents ?? 0;
+  const totalCost = breakdown?.total ?? 0;
 
   return (
     <div className={cn("overflow-hidden", className)}>
@@ -42,7 +41,7 @@ export function CostLayerTable({
               Amount
             </th>
             <th className="pb-2 text-right text-xs font-semibold text-neutral-500 uppercase tracking-wide">
-              % of Revenue
+              % of Costs
             </th>
           </tr>
         </thead>
@@ -57,7 +56,7 @@ export function CostLayerTable({
               ))
             : COST_KEYS.map((key) => {
                 const amount = breakdown ? (breakdown[key] as number) : 0;
-                const pct = revenue > 0 ? (amount / revenue) * 100 : 0;
+                const pct = totalCost > 0 ? (amount / totalCost) * 100 : 0;
                 const color = COST_LAYER_COLORS[key] ?? "#94a3b8";
 
                 return (
@@ -91,7 +90,7 @@ export function CostLayerTable({
                 {formatCents(totalCost, currency)}
               </td>
               <td className="pt-3 text-right text-sm font-semibold text-neutral-700 tabular-nums">
-                {formatMargin(revenue > 0 ? totalCost / revenue : 0)}
+                {formatMargin(totalCost > 0 ? 1 : 0)}
               </td>
             </tr>
           </tfoot>

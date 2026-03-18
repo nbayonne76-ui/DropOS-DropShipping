@@ -94,7 +94,7 @@ async def oauth_callback(
 
     # 6. Redirect to frontend success page
     return RedirectResponse(
-        url=f"http://localhost:3000/stores?connected={shop}",
+        url=f"{settings.FRONTEND_URL}/stores?connected={shop}",
         status_code=302,
     )
 

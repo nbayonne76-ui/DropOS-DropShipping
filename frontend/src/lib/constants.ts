@@ -1,28 +1,45 @@
-import type { OrderStatus } from "@/types/api";
+import type { FulfillmentStatus, OrderStatus } from "@/types/api";
 import type { GranularityOption, DateRangePreset } from "@/types/analytics";
 
 // ─── Cost Layer Labels ────────────────────────────────────────────────────────
 
 export const COST_LAYER_LABELS: Record<string, string> = {
-  supplier_cost_cents: "Supplier Cost",
-  platform_fee_cents: "Platform Fee",
-  payment_fee_cents: "Payment Fee",
-  shipping_cost_cents: "Shipping Cost",
-  return_cost_cents: "Return Cost",
-  ad_spend_cents: "Ad Spend",
-  customs_duty_cents: "Customs & Duties",
-  other_cost_cents: "Other Costs",
+  cogs: "Supplier Cost (COGS)",
+  shipping_cost: "Shipping Cost",
+  platform_fee: "Platform Fee",
+  payment_fee: "Payment Fee",
+  chargeback_fee: "Chargeback Fee",
+  refund_fee: "Refund Fee",
+  fx_loss: "FX Loss",
+  import_duty: "Import Duty",
 };
 
 export const COST_LAYER_COLORS: Record<string, string> = {
-  supplier_cost_cents: "#6366f1",   // indigo
-  platform_fee_cents: "#8b5cf6",    // violet
-  payment_fee_cents: "#a78bfa",     // purple-light
-  shipping_cost_cents: "#f59e0b",   // amber
-  return_cost_cents: "#ef4444",     // red
-  ad_spend_cents: "#10b981",        // emerald
-  customs_duty_cents: "#3b82f6",    // blue
-  other_cost_cents: "#94a3b8",      // slate
+  cogs: "#6366f1",        // indigo
+  shipping_cost: "#f59e0b", // amber
+  platform_fee: "#8b5cf6",  // violet
+  payment_fee: "#a78bfa",   // purple-light
+  chargeback_fee: "#ef4444", // red
+  refund_fee: "#f97316",    // orange
+  fx_loss: "#10b981",       // emerald
+  import_duty: "#3b82f6",   // blue
+};
+
+// ─── Fulfillment Status ───────────────────────────────────────────────────────
+
+export const FULFILLMENT_STATUS_LABELS: Record<FulfillmentStatus, string> = {
+  unfulfilled: "Unfulfilled",
+  partial: "Partial",
+  fulfilled: "Fulfilled",
+};
+
+export const FULFILLMENT_STATUS_COLORS: Record<
+  FulfillmentStatus,
+  "success" | "warning" | "danger" | "neutral" | "info"
+> = {
+  unfulfilled: "neutral",
+  partial: "warning",
+  fulfilled: "success",
 };
 
 // ─── Order Status ─────────────────────────────────────────────────────────────
@@ -69,14 +86,14 @@ export const PLAN_LABELS: Record<string, string> = {
   free: "Free",
   starter: "Starter",
   growth: "Growth",
-  scale: "Scale",
+  pro: "Pro",
 };
 
 export const PLAN_COLORS: Record<string, string> = {
   free: "neutral",
   starter: "info",
   growth: "success",
-  scale: "warning",
+  pro: "warning",
 };
 
 // ─── Pagination Defaults ──────────────────────────────────────────────────────

@@ -22,13 +22,10 @@ interface StoreAnalyticsPageProps {
 export default function StoreAnalyticsPage({ params }: StoreAnalyticsPageProps) {
   const { storeId } = use(params);
   const { range, preset, setPreset, setCustomRange } = useDateRange();
-  const { data, isLoading } = useAnalytics({ storeId });
+  const { summary, trend, breakdown, isLoading } = useAnalytics({ storeId });
   const { stores } = useStores();
 
   const store = stores.find((s) => s.id === storeId);
-  const summary = data?.summary;
-  const breakdown = data?.cost_breakdown;
-  const trend = data?.trend;
 
   return (
     <div className="space-y-6">
@@ -58,26 +55,22 @@ export default function StoreAnalyticsPage({ params }: StoreAnalyticsPageProps) 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <KPICard
           title="Revenue"
-          value={summary ? formatCents(summary.total_revenue_cents, store?.currency) : "—"}
-          changePct={summary?.revenue_change_pct}
+          value={summary ? formatCents(summary.gross_revenue, store?.currency) : "—"}
           isLoading={isLoading}
         />
         <KPICard
           title="Net Profit"
-          value={summary ? formatCents(summary.total_profit_cents, store?.currency) : "—"}
-          changePct={summary?.profit_change_pct}
+          value={summary ? formatCents(summary.net_profit, store?.currency) : "—"}
           isLoading={isLoading}
         />
         <KPICard
           title="Avg Margin"
-          value={summary ? formatMargin(summary.avg_margin / 100) : "—"}
-          changePct={summary?.margin_change_pct}
+          value={summary ? formatMargin(parseFloat(summary.avg_profit_margin)) : "—"}
           isLoading={isLoading}
         />
         <KPICard
           title="Orders"
-          value={summary ? formatNumber(summary.orders_count) : "—"}
-          changePct={summary?.orders_change_pct}
+          value={summary ? formatNumber(summary.total_orders) : "—"}
           isLoading={isLoading}
         />
       </div>

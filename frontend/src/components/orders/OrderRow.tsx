@@ -1,6 +1,11 @@
 import { cn, formatCents, formatDate, formatMargin } from "@/lib/formatters";
 import { Badge } from "@/components/ui/Badge";
-import { ORDER_STATUS_LABELS, ORDER_STATUS_COLORS } from "@/lib/constants";
+import {
+  ORDER_STATUS_LABELS,
+  ORDER_STATUS_COLORS,
+  FULFILLMENT_STATUS_LABELS,
+  FULFILLMENT_STATUS_COLORS,
+} from "@/lib/constants";
 import type { Order } from "@/types/api";
 
 interface OrderRowProps {
@@ -9,8 +14,8 @@ interface OrderRowProps {
 }
 
 export function OrderRow({ order, onClick }: OrderRowProps) {
-  const marginPositive = order.profit_margin >= 0;
-  const profitPositive = order.net_profit_cents >= 0;
+  const marginPositive = parseFloat(order.profit_margin) >= 0;
+  const profitPositive = order.net_profit >= 0;
 
   return (
     <tr
@@ -23,7 +28,7 @@ export function OrderRow({ order, onClick }: OrderRowProps) {
       {/* Order number */}
       <td className="px-4 py-3">
         <span className="text-sm font-medium text-neutral-900">
-          #{order.order_number}
+          {order.order_number}
         </span>
       </td>
 
@@ -41,10 +46,17 @@ export function OrderRow({ order, onClick }: OrderRowProps) {
         </Badge>
       </td>
 
+      {/* Fulfillment */}
+      <td className="px-4 py-3">
+        <Badge variant={FULFILLMENT_STATUS_COLORS[order.fulfillment_status]} dot>
+          {FULFILLMENT_STATUS_LABELS[order.fulfillment_status]}
+        </Badge>
+      </td>
+
       {/* Gross Revenue */}
       <td className="px-4 py-3 text-right">
         <span className="text-sm font-medium text-neutral-800 tabular-nums">
-          {formatCents(order.gross_revenue_cents, order.currency)}
+          {formatCents(order.gross_revenue, order.currency)}
         </span>
       </td>
 
@@ -57,7 +69,7 @@ export function OrderRow({ order, onClick }: OrderRowProps) {
           )}
         >
           {profitPositive ? "+" : ""}
-          {formatCents(order.net_profit_cents, order.currency)}
+          {formatCents(order.net_profit, order.currency)}
         </span>
       </td>
 
@@ -69,7 +81,7 @@ export function OrderRow({ order, onClick }: OrderRowProps) {
             marginPositive ? "text-success-600" : "text-danger-600"
           )}
         >
-          {formatMargin(order.profit_margin / 100)}
+          {formatMargin(parseFloat(order.profit_margin))}
         </span>
       </td>
     </tr>

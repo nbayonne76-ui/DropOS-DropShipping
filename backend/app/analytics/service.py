@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import csv
+import io
 import uuid
 from datetime import date, datetime, timezone
 from decimal import ROUND_HALF_UP, Decimal
@@ -10,6 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.analytics.schemas import (
     CostBreakdown,
+    CustomerAnalytics,
     DashboardSummary,
     StoreComparison,
     TopOrder,
@@ -194,9 +197,7 @@ class AnalyticsService:
             .where(
                 (Order.ordered_at <= to_dt) | Order.ordered_at.is_(None)
             )
-            .where(
-                Order.deleted_at.is_(None) | Order.deleted_at.is_(None)
-            )
+            .where(Order.deleted_at.is_(None))
             .group_by(Store.id, Store.name, Store.shopify_domain)
             .order_by(func.coalesce(func.sum(Order.net_profit), 0).desc())
         )
@@ -313,6 +314,167 @@ class AnalyticsService:
             )
             for o in result.all()
         ]
+
+    async def export_summary_csv(
+        self,
+        tenant_id: uuid.UUID,
+        store_id: uuid.UUID | None,
+        from_date: date,
+        to_date: date,
+        granularity: Granularity = "day",
+    ) -> str:
+        """Return a two-section CSV: summary KPIs then trend rows."""
+        summary = await self.get_summary(tenant_id, store_id, from_date, to_date)
+        trends = await self.get_trends(tenant_id, store_id, from_date, to_date, granularity)
+
+        output = io.StringIO()
+
+        # ── Section 1: summary ────────────────────────────────────────────────
+        output.write("# Summary\n")
+        summary_writer = csv.DictWriter(
+            output,
+            fieldnames=[
+                "from_date", "to_date", "total_orders",
+                "gross_revenue", "net_revenue", "total_cost",
+                "net_profit", "avg_profit_margin", "total_refunds", "refund_rate",
+            ],
+        )
+        summary_writer.writeheader()
+        summary_writer.writerow({
+            "from_date": str(summary.from_date),
+            "to_date": str(summary.to_date),
+            "total_orders": summary.total_orders,
+            "gross_revenue": summary.gross_revenue,
+            "net_revenue": summary.net_revenue,
+            "total_cost": summary.total_cost,
+            "net_profit": summary.net_profit,
+            "avg_profit_margin": str(summary.avg_profit_margin) if summary.avg_profit_margin is not None else "",
+            "total_refunds": summary.total_refunds,
+            "refund_rate": str(summary.refund_rate) if summary.refund_rate is not None else "",
+        })
+
+        # ── Section 2: trends ─────────────────────────────────────────────────
+        output.write("\n# Trends\n")
+        trend_writer = csv.DictWriter(
+            output,
+            fieldnames=["period", "orders", "gross_revenue", "net_revenue", "net_profit", "avg_margin"],
+        )
+        trend_writer.writeheader()
+        for t in trends:
+            trend_writer.writerow({
+                "period": t.period,
+                "orders": t.orders,
+                "gross_revenue": t.gross_revenue,
+                "net_revenue": t.net_revenue,
+                "net_profit": t.net_profit,
+                "avg_margin": str(t.avg_margin) if t.avg_margin is not None else "",
+            })
+
+        return output.getvalue()
+
+    async def get_customers(
+        self,
+        tenant_id: uuid.UUID,
+        store_id: uuid.UUID | None,
+        from_date: date,
+        to_date: date,
+        limit: int = 50,
+    ) -> list[CustomerAnalytics]:
+        """Top customers ranked by total gross revenue, with LTV metrics."""
+        from_dt = datetime.combine(from_date, datetime.min.time()).replace(tzinfo=timezone.utc)
+        to_dt = datetime.combine(to_date, datetime.max.time()).replace(tzinfo=timezone.utc)
+
+        stmt = (
+            select(
+                Order.customer_email,
+                func.count(Order.id).label("order_count"),
+                func.coalesce(func.sum(Order.gross_revenue), 0).label("total_gross_revenue"),
+                func.coalesce(func.sum(Order.net_profit), 0).label("total_net_profit"),
+                func.coalesce(func.avg(Order.gross_revenue), 0).label("avg_order_value"),
+                func.coalesce(func.sum(Order.refund_amount), 0).label("total_refunds"),
+                func.max(Order.ordered_at).label("last_ordered_at"),
+            )
+            .where(Order.tenant_id == tenant_id)
+            .where(Order.deleted_at.is_(None))
+            .where(Order.ordered_at >= from_dt)
+            .where(Order.ordered_at <= to_dt)
+            .where(Order.customer_email.isnot(None))
+        )
+        if store_id:
+            stmt = stmt.where(Order.store_id == store_id)
+
+        stmt = (
+            stmt.group_by(Order.customer_email)
+            .order_by(func.coalesce(func.sum(Order.gross_revenue), 0).desc())
+            .limit(limit)
+        )
+
+        result = await self.db.execute(stmt)
+        return [
+            CustomerAnalytics(
+                customer_email=row.customer_email,
+                order_count=row.order_count or 0,
+                total_gross_revenue=int(row.total_gross_revenue),
+                total_net_profit=int(row.total_net_profit),
+                avg_order_value=int(row.avg_order_value),
+                total_refunds=int(row.total_refunds),
+                last_ordered_at=row.last_ordered_at,
+            )
+            for row in result.all()
+        ]
+
+    async def export_orders_csv(
+        self,
+        tenant_id: uuid.UUID,
+        store_id: uuid.UUID | None,
+        from_date: date,
+        to_date: date,
+    ) -> str:
+        """Stream all orders in the period as CSV."""
+        q = self._base_order_query(tenant_id, store_id, from_date, to_date)
+        orders = await self.db.scalars(q.order_by(Order.ordered_at.desc()))
+
+        output = io.StringIO()
+        writer = csv.DictWriter(
+            output,
+            fieldnames=[
+                "order_number", "ordered_at", "status", "fulfillment_status",
+                "customer_email", "shipping_country", "currency",
+                "gross_revenue", "refund_amount", "net_revenue",
+                "cogs", "shipping_cost", "platform_fee", "payment_fee",
+                "chargeback_fee", "refund_fee", "fx_loss", "import_duty",
+                "total_cost", "net_profit", "profit_margin",
+                "tracking_number", "tracking_company",
+            ],
+        )
+        writer.writeheader()
+        for o in orders.all():
+            writer.writerow({
+                "order_number": o.order_number,
+                "ordered_at": o.ordered_at.isoformat() if o.ordered_at else "",
+                "status": o.status,
+                "fulfillment_status": o.fulfillment_status,
+                "customer_email": o.customer_email or "",
+                "shipping_country": o.shipping_country or "",
+                "currency": o.currency,
+                "gross_revenue": o.gross_revenue,
+                "refund_amount": o.refund_amount,
+                "net_revenue": o.net_revenue,
+                "cogs": o.cogs,
+                "shipping_cost": o.shipping_cost,
+                "platform_fee": o.platform_fee,
+                "payment_fee": o.payment_fee,
+                "chargeback_fee": o.chargeback_fee,
+                "refund_fee": o.refund_fee,
+                "fx_loss": o.fx_loss,
+                "import_duty": o.import_duty,
+                "total_cost": o.total_cost,
+                "net_profit": o.net_profit,
+                "profit_margin": str(o.profit_margin) if o.profit_margin is not None else "",
+                "tracking_number": o.tracking_number or "",
+                "tracking_company": o.tracking_company or "",
+            })
+        return output.getvalue()
 
     # ── Helpers ───────────────────────────────────────────────────────────────
 

@@ -2,11 +2,12 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronDown, LogOut, User, Settings } from "lucide-react";
-import { cn } from "@/lib/formatters";
+import { Bell, ChevronDown, LogOut, Settings, User } from "lucide-react";
+import { cn, formatRelativeTime } from "@/lib/formatters";
 import { useAppStore } from "@/store/appStore";
 import { useStores } from "@/hooks/useStores";
 import { logout } from "@/lib/api/auth";
+import { markNotificationRead, useNotifications, useUnreadCount } from "@/hooks/useNotifications";
 
 export function TopBar() {
   const router = useRouter();
@@ -18,8 +19,14 @@ export function TopBar() {
 
   const [storeOpen, setStoreOpen] = useState(false);
   const [userOpen, setUserOpen] = useState(false);
+  const [bellOpen, setBellOpen] = useState(false);
+
   const storeRef = useRef<HTMLDivElement>(null);
   const userRef = useRef<HTMLDivElement>(null);
+  const bellRef = useRef<HTMLDivElement>(null);
+
+  const { count: unreadCount } = useUnreadCount();
+  const { notifications } = useNotifications(10);
 
   // Close dropdowns on outside click
   useEffect(() => {
@@ -29,6 +36,9 @@ export function TopBar() {
       }
       if (userRef.current && !userRef.current.contains(e.target as Node)) {
         setUserOpen(false);
+      }
+      if (bellRef.current && !bellRef.current.contains(e.target as Node)) {
+        setBellOpen(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -104,6 +114,82 @@ export function TopBar() {
 
       {/* Spacer */}
       <div className="flex-1" />
+
+      {/* Bell / notifications */}
+      <div ref={bellRef} className="relative">
+        <button
+          onClick={() => setBellOpen((o) => !o)}
+          className="relative flex items-center justify-center w-9 h-9 rounded-lg hover:bg-neutral-100 transition-colors"
+          aria-label="Notifications"
+        >
+          <Bell className="w-5 h-5 text-neutral-600" />
+          {unreadCount > 0 && (
+            <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-danger-500 text-white text-[10px] font-bold px-1 leading-none">
+              {unreadCount > 99 ? "99+" : unreadCount}
+            </span>
+          )}
+        </button>
+
+        {bellOpen && (
+          <div className="absolute top-full mt-1.5 right-0 w-80 bg-white rounded-xl border border-neutral-200 shadow-lg z-50 overflow-hidden">
+            {/* Header */}
+            <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-100">
+              <span className="text-sm font-semibold text-neutral-900">Notifications</span>
+              {unreadCount > 0 && (
+                <button
+                  onClick={() => markNotificationRead()}
+                  className="text-xs text-primary-600 hover:underline"
+                >
+                  Mark all read
+                </button>
+              )}
+            </div>
+
+            {/* List */}
+            <div className="max-h-80 overflow-y-auto">
+              {notifications.length === 0 ? (
+                <p className="px-4 py-6 text-center text-sm text-neutral-400">
+                  No notifications yet
+                </p>
+              ) : (
+                notifications.map((n) => (
+                  <button
+                    key={n.id}
+                    onClick={() => markNotificationRead(n.id)}
+                    className={cn(
+                      "w-full text-left px-4 py-3 border-b border-neutral-50 hover:bg-neutral-50 transition-colors last:border-0",
+                      !n.is_read && "bg-primary-50/40"
+                    )}
+                  >
+                    <div className="flex items-start gap-2.5">
+                      {!n.is_read && (
+                        <span className="mt-1.5 w-2 h-2 rounded-full bg-primary-500 flex-shrink-0" />
+                      )}
+                      <div className={cn("min-w-0", n.is_read && "pl-4")}>
+                        <p className="text-sm font-medium text-neutral-900 truncate">{n.title}</p>
+                        <p className="text-xs text-neutral-500 mt-0.5 line-clamp-2">{n.message}</p>
+                        <p className="text-[11px] text-neutral-400 mt-1">
+                          {formatRelativeTime(n.created_at)}
+                        </p>
+                      </div>
+                    </div>
+                  </button>
+                ))
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="border-t border-neutral-100 px-4 py-2.5">
+              <button
+                onClick={() => { router.push("/settings?tab=alerts"); setBellOpen(false); }}
+                className="text-xs text-primary-600 hover:underline"
+              >
+                Manage alert rules →
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* User menu */}
       <div ref={userRef} className="relative">

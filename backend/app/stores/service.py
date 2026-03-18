@@ -83,22 +83,33 @@ class StoreService:
     async def trigger_sync(
         self, store_id: uuid.UUID, tenant_id: uuid.UUID, full_sync: bool = False
     ) -> SyncStatusResponse:
-        """Pull orders from Shopify and upsert into DB."""
-        from app.stores.shopify_sync import sync_store_orders
+        """Enqueue a background Shopify sync job and return immediately."""
+        from arq.connections import ArqRedis, RedisSettings, create_pool
+        from app.config import settings as app_settings
 
         store = await self._get_owned(store_id, tenant_id)
-        await sync_store_orders(
-            db=self.db,
-            store=store,
-            tenant_id=tenant_id,
-            full_sync=full_sync,
+
+        redis: ArqRedis = await create_pool(
+            RedisSettings.from_dsn(app_settings.REDIS_URL)
         )
+        try:
+            job = await redis.enqueue_job(
+                "sync_store_job",
+                str(store_id),
+                str(tenant_id),
+                full_sync,
+            )
+        finally:
+            await redis.aclose()
+
+        job_id = job.job_id if job else None
         return SyncStatusResponse(
             store_id=store.id,
             shopify_domain=store.shopify_domain,
             is_active=store.is_active,
             last_synced_at=store.last_synced_at,
             sync_cursor=store.sync_cursor,
+            job_id=job_id,
         )
 
     async def get_sync_status(

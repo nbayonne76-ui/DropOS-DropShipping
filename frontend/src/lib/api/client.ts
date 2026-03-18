@@ -136,6 +136,8 @@ async function apiFetch<T>(
 
 // ─── Public API ───────────────────────────────────────────────────────────────
 
+export { getAccessToken };
+
 export const apiClient = {
   get<T>(path: string, params?: FetchOptions["params"]): Promise<T> {
     return apiFetch<T>(path, { method: "GET", params });

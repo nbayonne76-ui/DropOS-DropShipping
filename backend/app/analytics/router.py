@@ -5,9 +5,11 @@ from datetime import date, timedelta
 from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, Query
+from fastapi.responses import StreamingResponse
 
 from app.analytics.schemas import (
     CostBreakdown,
+    CustomerAnalytics,
     DashboardSummary,
     StoreComparison,
     TopOrder,
@@ -119,8 +121,61 @@ async def get_top_orders(
 
 
 @router.get(
-    "/export/summary",
-    summary="(Placeholder) Export summary as PDF/Excel — coming soon",
+    "/customers",
+    response_model=list[CustomerAnalytics],
+    summary="Top customers ranked by total revenue",
 )
-async def export_summary(current_user: CurrentUser) -> dict:
-    return {"detail": "Export feature is available on the Growth plan and above."}
+async def get_customers(
+    current_user: CurrentUser,
+    db: DbDep,
+    store_id: uuid.UUID | None = Query(default=None),
+    from_date: date = Query(default_factory=_30_days_ago),
+    to_date: date = Query(default_factory=_today),
+    limit: int = Query(default=50, ge=1, le=200),
+) -> list[CustomerAnalytics]:
+    return await AnalyticsService(db).get_customers(
+        current_user.id, store_id, from_date, to_date, limit
+    )
+
+
+@router.get(
+    "/export/orders",
+    summary="Export all orders in the period as CSV",
+)
+async def export_orders(
+    current_user: CurrentUser,
+    db: DbDep,
+    store_id: uuid.UUID | None = Query(default=None),
+    from_date: date = Query(default_factory=_30_days_ago),
+    to_date: date = Query(default_factory=_today),
+) -> StreamingResponse:
+    csv_data = await AnalyticsService(db).export_orders_csv(
+        current_user.id, store_id, from_date, to_date
+    )
+    return StreamingResponse(
+        iter([csv_data]),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=orders.csv"},
+    )
+
+
+@router.get(
+    "/export/summary",
+    summary="Export analytics summary + trends as CSV",
+)
+async def export_summary(
+    current_user: CurrentUser,
+    db: DbDep,
+    store_id: uuid.UUID | None = Query(default=None),
+    from_date: date = Query(default_factory=_30_days_ago),
+    to_date: date = Query(default_factory=_today),
+    granularity: Granularity = Query(default="day"),
+) -> StreamingResponse:
+    csv_data = await AnalyticsService(db).export_summary_csv(
+        current_user.id, store_id, from_date, to_date, granularity
+    )
+    return StreamingResponse(
+        iter([csv_data]),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=analytics.csv"},
+    )

@@ -54,6 +54,17 @@ class UpdateProductRequest(BaseModel):
     )
 
 
+class BulkCogsImportResult(BaseModel):
+    """Result of a bulk COGS import from CSV."""
+
+    updated: int
+    """Number of order line items whose unit_cogs was updated."""
+    orders_recalculated: int
+    """Number of parent orders that were recalculated."""
+    not_found_skus: list[str]
+    """SKUs present in the CSV that matched no line items for this tenant."""
+
+
 class ProductLandedCostResponse(BaseModel):
     product_id: uuid.UUID
     shopify_product_id: str

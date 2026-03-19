@@ -264,18 +264,6 @@ export interface CreateSupplierRequest {
 
 export type UpdateSupplierRequest = Partial<CreateSupplierRequest>;
 
-export interface SupplierPerformance {
-  supplier_id: string;
-  supplier_name: string;
-  country: string;
-  composite_score: number;
-  on_time_rate: number;
-  stock_accuracy: number;
-  dispute_rate: number;
-  avg_fulfillment_days: number;
-  total_orders: number;
-  defect_rate: number;
-}
 
 // ─── Tariffs & Landed Cost ────────────────────────────────────────────────────
 
